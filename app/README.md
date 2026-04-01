@@ -25,20 +25,11 @@ The Information Product Canvas is a visual requirements tool for Information Pro
 
 ## Install and Run
 
-```bash
-cd app
-pnpm install
-pnpm dev
-```
+Double-click `start-IPC.command` (macOS) or run `./start-IPC.sh` from the terminal.
 
 The app starts at [http://localhost:5115](http://localhost:5115).
 
-## Build for Production
-
-```bash
-pnpm build
-pnpm preview
-```
+**Requires**: [Node.js](https://nodejs.org/) (v18+) and [pnpm](https://pnpm.io/) (`npm install -g pnpm`).
 
 ## Features
 
