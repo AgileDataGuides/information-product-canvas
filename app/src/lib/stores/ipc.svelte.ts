@@ -83,6 +83,7 @@ export const store = $state({
 
 async function apiListModels(): Promise<IPCModel[]> {
 	const res = await fetch('/api/models');
+	if (!res.ok) throw new Error(`GET /api/models failed: ${res.status}`);
 	return res.json();
 }
 
@@ -187,24 +188,37 @@ function makeExampleModel(): IPCModel {
 
 export async function initStore() {
 	if (store.loaded) return;
-	const models = await apiListModels();
-	if (models.length === 0) {
+	try {
+		const models = await apiListModels();
+		if (models.length === 0) {
+			const example = makeExampleModel();
+			await apiCreateModel(example);
+			store.savedList = [{ id: example.id, name: example.name }];
+			store.model = example;
+		} else {
+			store.savedList = models.map((m) => ({ id: m.id, name: m.name }));
+			const lastId = typeof window !== 'undefined' ? localStorage.getItem('ipc-current-id') : null;
+			const found = models.find((m) => m.id === lastId);
+			store.model = migrateModel(found || models[0]);
+		}
+		// Select first IP if available
+		if (store.model.informationProducts.length > 0) {
+			store.selectedIpId = store.model.informationProducts[0].id;
+		}
+		store.dirty = false;
+		store.loaded = true;
+	} catch (err) {
+		console.error('Failed to initialise IPC store:', err);
+		// Fall back to example model without persistence
 		const example = makeExampleModel();
-		await apiCreateModel(example);
 		store.savedList = [{ id: example.id, name: example.name }];
 		store.model = example;
-	} else {
-		store.savedList = models.map((m) => ({ id: m.id, name: m.name }));
-		const lastId = typeof window !== 'undefined' ? localStorage.getItem('ipc-current-id') : null;
-		const found = models.find((m) => m.id === lastId);
-		store.model = migrateModel(found || models[0]);
+		if (example.informationProducts.length > 0) {
+			store.selectedIpId = example.informationProducts[0].id;
+		}
+		store.dirty = false;
+		store.loaded = true;
 	}
-	// Select first IP if available
-	if (store.model.informationProducts.length > 0) {
-		store.selectedIpId = store.model.informationProducts[0].id;
-	}
-	store.dirty = false;
-	store.loaded = true;
 }
 
 // --- Model CRUD ---
