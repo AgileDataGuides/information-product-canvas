@@ -51,7 +51,7 @@
 	}
 
 	function handleExportJSON() {
-		// Auto-detect: try Context Plane graph format first, fall back to native
+		// Auto-detect: try graph format first, fall back to native
 		const cpData = ipcToContextPlane(store.model);
 		const json = cpData.nodes.length > 0
 			? JSON.stringify(cpData, null, 2)
@@ -79,7 +79,7 @@
 			try {
 				const text = await file.text();
 				const data = JSON.parse(text);
-				// Auto-detect format: Context Plane { nodes, links } vs native IPC JSON
+				// Auto-detect format: graph { nodes, links } vs native IPC JSON
 				if (data.nodes && data.links) {
 					const model = contextPlaneToIpc(data, file.name.replace(/\.json$/, '').replace(/-\d{4}-\d{2}-\d{2}-\d{6}$/, ''));
 					await importJSON(JSON.stringify(model));

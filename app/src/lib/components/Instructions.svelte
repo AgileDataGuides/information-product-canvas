@@ -73,7 +73,7 @@
 				<li><strong>Save</strong> &mdash; writes the canvas JSON to <code>data/</code> so Claude can access it directly.</li>
 				<li><strong>Export JSON</strong> &mdash; downloads the canvas to your downloads folder to share or re-import later.</li>
 				<li><strong>Export PPTX</strong> &mdash; generates a PowerPoint slide matching the ADG template, one slide per Information Product.</li>
-				<li><strong>Import JSON</strong> &mdash; load a previously exported canvas. Supports both native IPC format and Context Plane graph format (auto-detected).</li>
+				<li><strong>Import JSON</strong> &mdash; load a previously exported canvas. Supports both native IPC format and graph format with nodes and links (auto-detected).</li>
 			</ul>
 
 			<h4>Canvas Sections</h4>
