@@ -23,7 +23,7 @@ export interface ContextLink {
 
 /** Parse comma-separated label string into array */
 export function getNodeLabels(node: { label: string }): string[] {
-  return node.label.split(',').map((l) => l.trim()).filter(Boolean);
+  return node.label.split(",").map((l) => l.trim()).filter(Boolean);
 }
 
 /** Check if a node has a given label */
@@ -35,13 +35,13 @@ export interface DataAdapter {
   // Node operations
   getNodes(filter?: { label?: string }): Promise<ContextNode[]>;
   getNode(id: string): Promise<ContextNode | null>;
-  createNode(node: Omit<ContextNode, 'id' | 'created_at' | 'updated_at'>): Promise<ContextNode>;
+  createNode(node: Omit<ContextNode, "id" | "created_at" | "updated_at">): Promise<ContextNode>;
   updateNode(id: string, updates: Partial<ContextNode>): Promise<ContextNode>;
   deleteNode(id: string): Promise<void>;
 
   // Link operations
   getLinks(filter?: { label?: string; source_id?: string; destination_id?: string }): Promise<ContextLink[]>;
-  createLink(link: Omit<ContextLink, 'id' | 'created_at' | 'updated_at'>): Promise<ContextLink>;
+  createLink(link: Omit<ContextLink, "id" | "created_at" | "updated_at">): Promise<ContextLink>;
   deleteLink(id: string): Promise<void>;
 
   // Bulk operations (for import/export)

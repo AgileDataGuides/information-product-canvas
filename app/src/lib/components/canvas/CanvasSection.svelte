@@ -12,7 +12,8 @@
 		entityLabel,
 		onSelectNode,
 		onAddNode,
-		onAddExisting
+		onAddExisting,
+		maxItems
 	}: {
 		title: string;
 		color: string;
@@ -21,7 +22,10 @@
 		onSelectNode: (id: string) => void;
 		onAddNode: (entityLabel: string, name: string) => void;
 		onAddExisting?: (entityLabel: string) => void;
+		maxItems?: number;
 	} = $props();
+
+	const atLimit = $derived(maxItems != null && nodes.length >= maxItems);
 
 	let adding = $state(false);
 	let newName = $state('');
@@ -123,29 +127,31 @@
 				{title}
 			</span>
 			<div class="flex items-center gap-1.5">
-				<span class="text-[10px] text-slate-400">{nodes.length}</span>
-				{#if onAddExisting}
+				<span class="text-[10px] text-slate-400">{nodes.length}{#if maxItems}/{maxItems}{/if}</span>
+				{#if !atLimit}
+					{#if onAddExisting}
+						<button
+							onclick={() => onAddExisting(entityLabel)}
+							class="w-4 h-4 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
+							style="color: {color}"
+							title="Add existing node to {title}"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3">
+								<path d="M1 10a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-4ZM10 1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V1ZM6.5 3.5a2.5 2.5 0 0 0-5 0v.006c0 .07.003.14.009.209l2.86 2.86a2.5 2.5 0 0 0 2.122-2.404L6.5 3.5ZM9.5 12.5a2.5 2.5 0 0 0 5 0v-.006a2.52 2.52 0 0 0-.009-.209l-2.86-2.86a2.5 2.5 0 0 0-2.122 2.404l-.009.671Z" />
+							</svg>
+						</button>
+					{/if}
 					<button
-						onclick={() => onAddExisting(entityLabel)}
+						onclick={startAdding}
 						class="w-4 h-4 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
 						style="color: {color}"
-						title="Add existing node to {title}"
+						title="Add {title}"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3">
-							<path d="M1 10a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-4ZM10 1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V1ZM6.5 3.5a2.5 2.5 0 0 0-5 0v.006c0 .07.003.14.009.209l2.86 2.86a2.5 2.5 0 0 0 2.122-2.404L6.5 3.5ZM9.5 12.5a2.5 2.5 0 0 0 5 0v-.006a2.52 2.52 0 0 0-.009-.209l-2.86-2.86a2.5 2.5 0 0 0-2.122 2.404l-.009.671Z" />
+							<path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" />
 						</svg>
 					</button>
 				{/if}
-				<button
-					onclick={startAdding}
-					class="w-4 h-4 flex items-center justify-center rounded hover:bg-black/10 transition-colors"
-					style="color: {color}"
-					title="Add {title}"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3">
-						<path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" />
-					</svg>
-				</button>
 			</div>
 		</div>
 

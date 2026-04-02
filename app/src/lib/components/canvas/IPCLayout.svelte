@@ -209,7 +209,7 @@
 				>
 					<div class="text-left">
 						<div class="text-sm font-semibold text-slate-800 leading-tight">{selectedModel?.name ?? 'No model'}</div>
-						<div class="text-[10px] text-slate-400 leading-tight">Switch model</div>
+						<div class="text-[10px] text-slate-400 leading-tight">Switch canvas</div>
 					</div>
 					<svg class="w-4 h-4 text-slate-400 transition-transform {showModelSwitcher ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -319,15 +319,15 @@
 	{/if}
 
 	{#if selectedModel || !showCanvasSelector}
-	<div class="grid grid-cols-5 grid-rows-[auto_0.5fr_0.5fr_1fr_minmax(0,0.7fr)] gap-1.5 {showCanvasSelector ? 'h-[calc(100%-11rem)]' : 'h-[calc(100%-0.5rem)]'}">
+	<div class="grid grid-cols-5 grid-rows-[auto_minmax(80px,0.5fr)_minmax(80px,0.5fr)_minmax(100px,1fr)_minmax(80px,0.7fr)] gap-1.5 {showCanvasSelector ? 'h-[calc(100%-11rem)]' : 'h-[calc(100%-0.5rem)]'}">
 		<div class="col-span-3">
-			<CanvasSection title="Name" color="#0ea5e9" entityLabel="global_info_product" nodes={get('global_info_product')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection title="Name" color="#0ea5e9" entityLabel="global_info_product" nodes={get('global_info_product')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
 		</div>
 		<div class="col-span-1">
-			<CanvasSection title="Product Owner" color="#0ea5e9" entityLabel="ipc_product_owner" nodes={get('ipc_product_owner')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection title="Product Owner" color="#0ea5e9" entityLabel="ipc_product_owner" nodes={get('ipc_product_owner')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
 		</div>
 		<div class="col-span-1">
-			<CanvasSection title="T-Shirt Size" color="#0ea5e9" entityLabel="ipc_tshirt_size" nodes={get('ipc_tshirt_size')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection title="T-Shirt Size" color="#0ea5e9" entityLabel="ipc_tshirt_size" nodes={get('ipc_tshirt_size')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
 		</div>
 
 		<div class="col-span-2 row-span-2">

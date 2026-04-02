@@ -373,14 +373,17 @@ export function addNodeToIp(entityLabel: string, name: string): IPCNode | null {
 	const mapping = LABEL_TO_SECTION[entityLabel];
 	if (!mapping) return null;
 
-	// If selectedIpId is __new__, create a new IP first
+	// If adding a Name, create a new IP with that name
 	if (entityLabel === 'global_info_product') {
 		const ip = addInformationProduct(name);
 		return { id: ip.id, label: entityLabel, name };
 	}
 
-	const ip = getSelectedIp();
-	if (!ip) return null;
+	// If no IP selected yet, auto-create an untitled one so items can be added in any order
+	let ip = getSelectedIp();
+	if (!ip) {
+		ip = addInformationProduct('Untitled');
+	}
 
 	// Simple string fields
 	if (mapping.field) {
