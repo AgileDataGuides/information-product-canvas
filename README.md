@@ -4,6 +4,9 @@ Gather Information Product requirements using the Information Product Canvas pat
 
 An [AgileDataGuides](https://agiledataguides.com/agiledata-templates/) Pattern Template app.
 
+![Information Product Canvas](app/static/screenshot.png)
+
+
 ## What It Does
 
 The Information Product Canvas is a visual requirements tool for Information Products. Each canvas captures everything needed to design and deliver an Information Product:
@@ -14,12 +17,12 @@ The Information Product Canvas is a visual requirements tool for Information Pro
 | **Product Owner** | Who owns this product |
 | **T-Shirt Size** | Effort estimate |
 | **Business Questions** | What questions does this product answer |
-| **Outcomes/Actions** | What actions or outcomes result from answering the questions |
+| **Outcomes/Actions** | What actions and outcomes result from answering the questions |
 | **Personas** | Who consumes this product |
 | **Vision** | Vision statements for this product |
 | **Delivery Types** | How the product is delivered (e.g. Dashboard, Report, API) |
 | **Data Sync** | How often data is refreshed (e.g. Real-time, Hourly, Daily) |
-| **Core Business Events** | What events trigger or feed the product |
+| **Core Business Events** | What events create the data that feeds the product |
 | **Feature Stories** | User stories in "As a... I want... so that..." format |
 | **Will/Won't** | Explicit scope: what's in and what's out |
 
@@ -71,6 +74,16 @@ If you need to share your work, use the **Export** buttons to download files and
 - [Tailwind CSS 4](https://tailwindcss.com/)
 - TypeScript
 - pnpm
+
+## Learn More
+
+## 📗 Learn More
+
+**Learn how to fill out your first canvas in 30 minutes.**
+
+Get the full guide — *An Agile Data Guide to Information Product Canvas* — as an ePub for just $12. Use code **parsecs** at checkout, or [click here to get the discount applied automatically](https://ebooks.agiledataguides.com/discount/parsecs?redirect=%2Fproducts%2Fan-agile-data-guide-to-information-product-canvas).
+
+While you can use the Information Product Canvas app on its own, the full guide walks you through every canvas area with real-world examples, proven patterns, and tips from 10+ years of coaching data teams.
 
 ## Licensing
 
