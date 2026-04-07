@@ -1,4 +1,4 @@
 #!/bin/bash
 cd "$(dirname "$0")/app"
-pnpm install
-pnpm dev --port 5115
+npm install
+npm run dev -- --port 5115
