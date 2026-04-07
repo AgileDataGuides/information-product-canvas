@@ -1,0 +1,267 @@
+{
+  "version": "1.0",
+  "id": "saas-revenue-metrics",
+  "name": "SaaS Revenue Metrics",
+  "description": "",
+  "informationProducts": [
+    {
+      "id": "ip-mnfzrxet-axx4",
+      "name": "SaaS Revenue Metrics",
+      "description": "",
+      "productOwner": "ADI McADI",
+      "tshirtSize": "M",
+      "personas": [
+        {
+          "id": "global-mnfzx5kp-nrri",
+          "name": "Chief Revenue Officer (CRO)",
+          "description": "",
+          "order": 1
+        }
+      ],
+      "businessQuestions": [
+        {
+          "id": "global-mnfzsvtr-2wgp",
+          "name": "What is the Monthly Recurring Revenue (MRR) trend over the last 12 months?",
+          "description": "",
+          "order": 1,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfzt1lc-04oi",
+          "name": "How much Annual Recurring Revenue (ARR) are we generating across all customer segments?",
+          "description": "",
+          "order": 2,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfztf9s-lz1g",
+          "name": "What is the Average Revenue Per User (ARPU) for each customer segment?",
+          "description": "",
+          "order": 3,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfztl47-e9jp",
+          "name": "How much revenue is being added through expansion (up-sells, cross-sells) each month?",
+          "description": "",
+          "order": 4,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfzts3j-v9e9",
+          "name": "What percentage of recurring revenue is retained after accounting for churn and expansion (Net Revenue Retention)?",
+          "description": "",
+          "order": 5,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfztxkr-h1qs",
+          "name": "What is the contribution of each channel to total MRR and ARR?",
+          "description": "",
+          "order": 6,
+          "actionOutcome": ""
+        },
+        {
+          "id": "global-mnfzu3h2-nbm0",
+          "name": "What percentage of total revenue comes from new vs. existing customers?",
+          "description": "",
+          "order": 7,
+          "actionOutcome": "Increase overall ARR by targeting high-value customer segments for expansion."
+        }
+      ],
+      "coreBusinessEvents": [
+        {
+          "id": "global-mng001l7-2x3g",
+          "name": "Prospect Clicks on Ad",
+          "description": "",
+          "order": 1
+        },
+        {
+          "id": "global-mng006wl-ooov",
+          "name": "Prospect Signs-up for Trial",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "global-mng00d88-m6mo",
+          "name": "Customer Activates Account",
+          "description": "",
+          "order": 3
+        },
+        {
+          "id": "global-mng00hzi-06ap",
+          "name": "Customer Subscribes to a Paid Plan",
+          "description": "",
+          "order": 4
+        },
+        {
+          "id": "global-mng00ml4-ostp",
+          "name": "Customer Upgrades or Downgrades their Subscription",
+          "description": "",
+          "order": 5
+        },
+        {
+          "id": "global-mng00r6r-d7m8",
+          "name": "Customer Cancels their Subscription",
+          "description": "",
+          "order": 6
+        },
+        {
+          "id": "global-mng00vso-mjtc",
+          "name": "Customer Renews their Subscription",
+          "description": "",
+          "order": 7
+        }
+      ],
+      "featureStories": [
+        {
+          "id": "ipc_fe-mnfzucm8-9wtk",
+          "name": "As an CRO, I want to be able to drill down from the summary numbers to see the transactions that make up the number, so I can scan for outliers.",
+          "description": "",
+          "order": 1
+        },
+        {
+          "id": "ipc_fe-mnfzuhr7-hhpl",
+          "name": "As an CRO, I need to be able to see the data \"as at\" any point of historical time.",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "ipc_fe-mnfzuofq-865b",
+          "name": "As a CRO, I want to be able to export the data, so I can use it Google Sheets.",
+          "description": "",
+          "order": 3
+        }
+      ],
+      "willWont": [
+        {
+          "id": "ipc_wi-mnfzuurn-his2",
+          "name": "Won't Include internal or trial accounts in revenue metrics.",
+          "description": "",
+          "order": 1
+        },
+        {
+          "id": "ipc_wi-mnfzv2a8-sycx",
+          "name": "Will include Discounts in revenue calculations.",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "ipc_wi-mnfzvem9-0bz0",
+          "name": "Will provide revenue trends for the past 24 months.",
+          "description": "",
+          "order": 3
+        },
+        {
+          "id": "ipc_wi-mnfzvk85-rnpp",
+          "name": "Won't provide metrics for non-recurring or one-time revenue streams.",
+          "description": "",
+          "order": 4
+        },
+        {
+          "id": "ipc_wi-mnfzvpey-5vhe",
+          "name": "Will define Customer Segmentation based on demographic attributes.",
+          "description": "",
+          "order": 5
+        },
+        {
+          "id": "ipc_wi-mnfzvuqc-fe5w",
+          "name": "Won't define Customer Segmentation based on acquisition cohorts.",
+          "description": "",
+          "order": 6
+        }
+      ],
+      "visions": [
+        {
+          "id": "v-mng09u12-2e99",
+          "name": "FOR the Chief Revenue Office,",
+          "description": ""
+        },
+        {
+          "id": "ipc_vi-mng0ezoq-8xyl",
+          "name": "WHO needs to increase Annual Recurring Revenue,",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "ipc_vi-mng0f6lc-v5f4",
+          "name": "THE Revenue Metrics is an Interactive Dashboard,",
+          "description": "",
+          "order": 3
+        },
+        {
+          "id": "ipc_vi-mng0focx-oms9",
+          "name": "THAT automates the calculation of core revenue metrics,",
+          "description": "",
+          "order": 4
+        },
+        {
+          "id": "ipc_vi-mng0fvum-0cpr",
+          "name": "UNLIKE the current manual process using Google Sheets.",
+          "description": "",
+          "order": 5
+        }
+      ],
+      "deliveryTypes": [
+        {
+          "id": "dt-mng09u12-f2eh",
+          "name": "Interactive Dashboard",
+          "description": ""
+        },
+        {
+          "id": "ipc_de-mng0g9kt-pjoq",
+          "name": "AI Analyst",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "ipc_de-mng0gk8u-hblo",
+          "name": "Data Extract",
+          "description": "",
+          "order": 3
+        }
+      ],
+      "dataSyncs": [
+        {
+          "id": "ds-mng09u12-w5vb",
+          "name": "Daily, before 7am",
+          "description": ""
+        }
+      ],
+      "actionOutcomes": [
+        {
+          "id": "ao-mng09u12-fm9h",
+          "name": "Increase Annual Recurring Revenue",
+          "description": ""
+        },
+        {
+          "id": "ipc_ac-mng0dtb8-pur6",
+          "name": "Increase overall ARR by targeting high-value customer segments for expansion.",
+          "description": "",
+          "order": 2
+        },
+        {
+          "id": "ipc_ac-mng0dzd3-jn9k",
+          "name": "Improve Net Revenue Retention (NRR) by increasing the number of plan upgrades.",
+          "description": "",
+          "order": 3
+        },
+        {
+          "id": "ipc_ac-mng0e9zj-2gb0",
+          "name": "Optimise ARPU through personalised product features and upgrade strategies.",
+          "description": "",
+          "order": 4
+        },
+        {
+          "id": "ipc_ac-mng0eerz-nngn",
+          "name": "Drive ARR growth by focusing on customer acquisition for profitable channels.",
+          "description": "",
+          "order": 5
+        }
+      ]
+    }
+  ],
+  "sharedPersonas": [],
+  "sharedBusinessQuestions": [],
+  "sharedCoreBusinessEvents": []
+}

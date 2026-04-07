@@ -2,6 +2,7 @@ node_modules/
 .svelte-kit/
 build/
 data/*.json
+!data/saas-revenue-metrics.json
 .DS_Store
 .env
 .env.*
