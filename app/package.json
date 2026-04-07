@@ -5,8 +5,6 @@
   "type": "module",
   "exports": {
     "./canvas/IPCLayout.svelte": "./src/lib/components/canvas/IPCLayout.svelte",
-    "./canvas/CanvasSection.svelte": "./src/lib/components/canvas/CanvasSection.svelte",
-    "./canvas/CanvasCard.svelte": "./src/lib/components/canvas/CanvasCard.svelte",
     "./constants/context-types": "./src/lib/constants/context-types.ts",
     "./export-pptx": "./src/lib/export-pptx.ts",
     "./converters/context-plane": "./src/lib/converters/context-plane.ts"

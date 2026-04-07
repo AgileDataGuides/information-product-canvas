@@ -1,10 +1,7 @@
 <script lang="ts">
 	import {
 		store,
-		switchTo,
 		saveModel,
-		newModel,
-		deleteModel,
 		exportJSON,
 		importJSON,
 		renameModel,
@@ -13,35 +10,67 @@
 	import { ipcToContextPlane, contextPlaneToIpc } from '$lib/converters/context-plane';
 	import { exportIpcToPptx } from '$lib/export-pptx';
 
-	let showSwitcher = $state(false);
-	let showNew = $state(false);
-	let newModelName = $state('');
+	let {
+		activeTab = $bindable('canvas'),
+	}: {
+		activeTab: string;
+	} = $props();
+
+	const tabs = [
+		{ id: 'canvas', label: 'Canvas' },
+		{ id: 'instructions', label: 'Instructions' }
+	];
+
 	let saving = $state(false);
 	let exportingPptx = $state(false);
 
-	function handleClickOutsideSwitcher(e: MouseEvent) {
-		const target = e.target as HTMLElement;
-		if (!target.closest('[data-ipc-switcher]')) {
-			showSwitcher = false;
-		}
+	// Name editing
+	let editingName = $state(false);
+	let editNameValue = $state('');
+	let nameInputEl = $state<HTMLInputElement | null>(null);
+
+	// Description editing
+	let editingDesc = $state(false);
+	let editDescValue = $state('');
+	let descInputEl = $state<HTMLInputElement | null>(null);
+
+	function startEditName() {
+		editNameValue = store.model.name;
+		editingName = true;
+		setTimeout(() => nameInputEl?.focus(), 0);
 	}
 
-	async function handleNew() {
-		const name = newModelName.trim();
-		if (!name) return;
-		await newModel(name);
-		newModelName = '';
-		showNew = false;
+	function saveName() {
+		const trimmed = editNameValue.trim();
+		editingName = false;
+		if (!trimmed || trimmed === store.model.name) return;
+		renameModel(trimmed);
+	}
+
+	function handleNameKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') { e.preventDefault(); saveName(); }
+		else if (e.key === 'Escape') { editingName = false; }
+	}
+
+	function startEditDesc() {
+		editDescValue = store.model.description || '';
+		editingDesc = true;
+		setTimeout(() => descInputEl?.focus(), 0);
+	}
+
+	function saveDesc() {
+		editingDesc = false;
+		updateDescription(editDescValue.trim());
+	}
+
+	function handleDescKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') { e.preventDefault(); saveDesc(); }
+		else if (e.key === 'Escape') { editingDesc = false; }
 	}
 
 	async function handleSave() {
 		saving = true;
 		try { await saveModel(); } finally { saving = false; }
-	}
-
-	async function handleDelete() {
-		if (!confirm(`Delete "${store.model.name}"?`)) return;
-		await deleteModel(store.model.id);
 	}
 
 	function exportTimestamp(): string {
@@ -51,7 +80,6 @@
 	}
 
 	function handleExportJSON() {
-		// Auto-detect: try graph format first, fall back to native
 		const cpData = ipcToContextPlane(store.model);
 		const json = cpData.nodes.length > 0
 			? JSON.stringify(cpData, null, 2)
@@ -79,7 +107,6 @@
 			try {
 				const text = await file.text();
 				const data = JSON.parse(text);
-				// Auto-detect format: graph { nodes, links } vs native IPC JSON
 				if (data.nodes && data.links) {
 					const model = contextPlaneToIpc(data, file.name.replace(/\.json$/, '').replace(/-\d{4}-\d{2}-\d{2}-\d{6}$/, ''));
 					await importJSON(JSON.stringify(model));
@@ -101,93 +128,81 @@
 	}
 </script>
 
-<svelte:window onclick={handleClickOutsideSwitcher} />
+<!-- Toolbar: Name/Desc + Save + Exports -->
+<div class="bg-white border border-slate-200 rounded-lg">
+	<div class="flex items-center justify-between px-4 py-2.5">
+		<div class="flex items-center gap-3 min-w-0">
+			<div class="min-w-0">
+				{#if editingName}
+					<input
+						bind:this={nameInputEl}
+						bind:value={editNameValue}
+						onblur={saveName}
+						onkeydown={handleNameKeydown}
+						onclick={(e) => e.stopPropagation()}
+						type="text"
+						class="text-sm font-semibold text-slate-800 px-1 border border-blue-400 rounded outline-none w-64"
+					/>
+				{:else}
+					<button
+						class="text-sm font-semibold text-slate-800 leading-tight cursor-pointer hover:text-slate-600 transition-colors text-left truncate max-w-md"
+						onclick={startEditName}
+						title="Click to edit name"
+					>{store.model.name}</button>
+				{/if}
+				{#if editingDesc}
+					<input
+						bind:this={descInputEl}
+						bind:value={editDescValue}
+						onblur={saveDesc}
+						onkeydown={handleDescKeydown}
+						onclick={(e) => e.stopPropagation()}
+						type="text"
+						placeholder="Add a description..."
+						class="text-[10px] text-slate-500 px-1 border border-blue-400 rounded outline-none w-full mt-0.5"
+					/>
+				{:else}
+					<button
+						class="block text-[10px] leading-tight mt-0.5 truncate max-w-md text-left cursor-pointer transition-colors {store.model.description ? 'text-slate-400 hover:text-slate-600' : 'text-slate-300 italic hover:text-slate-500'}"
+						onclick={startEditDesc}
+						title="Click to edit description"
+					>{store.model.description || 'Click to add a description'}</button>
+				{/if}
+			</div>
 
-<div class="flex flex-wrap items-center justify-between gap-3 mb-4 bg-white border border-slate-200 rounded-lg px-4 py-3">
-	<div class="flex items-center gap-2">
-		<!-- Switcher dropdown -->
-		<div class="relative" data-ipc-switcher>
 			<button
-				onclick={() => (showSwitcher = !showSwitcher)}
-				class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100"
+				onclick={handleSave}
+				disabled={!store.dirty || saving}
+				class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors shrink-0 {store.dirty ? 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-50' : 'bg-white text-slate-300 border border-slate-200 cursor-not-allowed'}"
 			>
-				<div class="text-left">
-					<div class="text-sm font-semibold text-slate-800 leading-tight">{store.model.name}</div>
-					<div class="text-[10px] text-slate-400 leading-tight">Switch canvas</div>
-				</div>
-				<svg class="w-4 h-4 text-slate-400 transition-transform {showSwitcher ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-				</svg>
+				{#if saving}Saving...{:else if store.dirty}Save{:else}Saved{/if}
 			</button>
-
-			{#if showSwitcher}
-				<div class="absolute top-full left-0 mt-1.5 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1 min-w-[200px]">
-					{#each store.savedList as item (item.id)}
-						<button
-							onclick={() => { switchTo(item.id); showSwitcher = false; }}
-							class="w-full text-left px-4 py-2 text-sm transition-colors {item.id === store.model.id ? 'bg-slate-100 font-semibold text-slate-800' : 'text-slate-600 hover:bg-slate-50'}"
-						>
-							{item.name}
-						</button>
-					{/each}
-				</div>
-			{/if}
 		</div>
 
-		<!-- Inline New -->
-		{#if showNew}
-			<input
-				type="text"
-				placeholder="Model name..."
-				bind:value={newModelName}
-				onkeydown={(e) => e.key === 'Enter' && handleNew()}
-				class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-48"
-			/>
+		<div class="flex items-center gap-2 shrink-0">
 			<button
-				onclick={handleNew}
-				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-50 transition-colors"
-			>Create</button>
+				onclick={handleExportPptx}
+				disabled={exportingPptx}
+				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-teal-600 border border-teal-300 hover:bg-teal-50 transition-colors disabled:opacity-50"
+			>{exportingPptx ? 'Exporting...' : 'Export PPTX'}</button>
 			<button
-				onclick={() => (showNew = false)}
-				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-500 border border-slate-300 hover:bg-slate-50 transition-colors"
-			>Cancel</button>
-		{:else}
+				onclick={handleExportJSON}
+				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
+			>Export JSON</button>
 			<button
-				onclick={() => (showNew = true)}
-				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-emerald-700 border border-emerald-300 hover:bg-emerald-50 transition-colors"
-			>New Canvas</button>
-		{/if}
-
-		<!-- Save / Saved -->
-		<button
-			onclick={handleSave}
-			disabled={!store.dirty || saving}
-			class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors {store.dirty ? 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-50' : 'bg-white text-slate-300 border border-slate-200 cursor-not-allowed'}"
-		>
-			{#if saving}Saving...{:else if store.dirty}Save{:else}Saved{/if}
-		</button>
-
-		<!-- Delete -->
-		<button
-			onclick={handleDelete}
-			class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-red-500 border border-red-300 hover:bg-red-50 transition-colors"
-		>Delete</button>
+				onclick={handleImportJSON}
+				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
+			>Import JSON</button>
+		</div>
 	</div>
+</div>
 
-	<!-- Right: Export + Import -->
-	<div class="flex items-center gap-2">
+<!-- Tabs -->
+<div class="flex gap-0 px-4 border-b border-slate-200">
+	{#each tabs as tab}
 		<button
-			onclick={handleExportPptx}
-			disabled={exportingPptx}
-			class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-teal-600 border border-teal-300 hover:bg-teal-50 transition-colors disabled:opacity-50"
-		>{exportingPptx ? 'Exporting...' : 'Export PPTX'}</button>
-		<button
-			onclick={handleExportJSON}
-			class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
-		>Export JSON</button>
-		<button
-			onclick={handleImportJSON}
-			class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
-		>Import JSON</button>
-	</div>
+			class="flex items-center px-3.5 py-2 text-xs font-medium border-b-2 -mb-px transition-colors {activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-slate-400 border-transparent hover:text-slate-600'}"
+			onclick={() => (activeTab = tab.id)}
+		>{tab.label}</button>
+	{/each}
 </div>

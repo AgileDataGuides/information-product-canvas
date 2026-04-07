@@ -8,10 +8,6 @@
 </svelte:head>
 
 <div class="flex flex-col h-screen">
-	<header class="bg-slate-900 text-white px-6 py-4 shrink-0">
-		<h1 class="text-lg font-bold tracking-tight">Information Product Canvas</h1>
-		<p class="text-xs text-slate-400 mt-0.5">Gather Information Product requirements with the Information Product Canvas</p>
-	</header>
 	<main class="flex-1 overflow-hidden flex flex-col">
 		{@render children()}
 	</main>
