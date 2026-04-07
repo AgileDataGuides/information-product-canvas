@@ -4,7 +4,7 @@ Gather Information Product requirements using the Information Product Canvas pat
 
 An [AgileDataGuides](https://agiledataguides.com/agiledata-templates/) Pattern Template app.
 
-![Information Product Canvas](app/static/screenshot.png)
+![Information Product Canvas](app/static/screenshot-2026-04-07.png)
 
 
 ## What It Does
