@@ -30,12 +30,12 @@ export const GET: RequestHandler = async () => {
 export const POST: RequestHandler = async ({ request }) => {
 	ensureDataDir();
 
-	const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
-	if (contentLength > 5 * 1024 * 1024) {
+	const text = await request.text();
+	if (text.length > 5 * 1024 * 1024) {
 		return json({ error: 'Payload too large' }, { status: 413 });
 	}
 
-	const model = await request.json();
+	const model = JSON.parse(text);
 	if (!isValidModel(model)) {
 		return json({ error: 'Invalid model data' }, { status: 400 });
 	}

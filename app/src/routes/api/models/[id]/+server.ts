@@ -12,7 +12,11 @@ export const GET: RequestHandler = async ({ params }) => {
 		return json({ error: 'Not found' }, { status: 404 });
 	}
 	const raw = fs.readFileSync(filePath, 'utf-8');
-	return json(JSON.parse(raw));
+	try {
+		return json(JSON.parse(raw));
+	} catch {
+		return json({ error: 'Corrupted model file' }, { status: 500 });
+	}
 };
 
 export const PUT: RequestHandler = async ({ params, request }) => {
@@ -21,12 +25,12 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 		return json({ error: 'Invalid id' }, { status: 400 });
 	}
 
-	const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
-	if (contentLength > 5 * 1024 * 1024) {
+	const text = await request.text();
+	if (text.length > 5 * 1024 * 1024) {
 		return json({ error: 'Payload too large' }, { status: 413 });
 	}
 
-	const model = await request.json();
+	const model = JSON.parse(text);
 	if (!isValidModel(model)) {
 		return json({ error: 'Invalid model data' }, { status: 400 });
 	}
