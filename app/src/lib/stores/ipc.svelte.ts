@@ -255,12 +255,28 @@ function markDirty() {
 export async function newModel(name: string) {
 	const existingIds = store.savedList.map((s) => s.id);
 	const id = slugify(name, existingIds);
+	const defaultIpId = createId('ip');
 	const newM: IPCModel = {
 		version: '1.0',
 		id,
 		name,
 		description: '',
-		informationProducts: [],
+		informationProducts: [{
+			id: defaultIpId,
+			name,
+			description: '',
+			productOwner: '',
+			tshirtSize: '',
+			visions: [],
+			deliveryTypes: [],
+			dataSyncs: [],
+			actionOutcomes: [],
+			personas: [],
+			businessQuestions: [],
+			coreBusinessEvents: [],
+			featureStories: [],
+			willWont: []
+		}],
 		sharedPersonas: [],
 		sharedBusinessQuestions: [],
 		sharedCoreBusinessEvents: []
@@ -268,7 +284,7 @@ export async function newModel(name: string) {
 	await apiCreateModel(newM);
 	store.savedList = [...store.savedList, { id, name }];
 	store.model = newM;
-	store.selectedIpId = '';
+	store.selectedIpId = defaultIpId;
 	store.dirty = false;
 	if (typeof window !== 'undefined') {
 		localStorage.setItem('ipc-current-id', id);
@@ -459,6 +475,43 @@ export function updateNodeOrder(nodeId: string, order: number) {
 			markDirty();
 			return;
 		}
+	}
+}
+
+/**
+ * Remove a node from the current IP by its ID.
+ * Handles array items, simple fields, and IP names.
+ */
+export function removeNodeFromIp(nodeId: string) {
+	const ip = getSelectedIp();
+	if (!ip) return;
+
+	// Check all array sections
+	for (const section of ['personas', 'businessQuestions', 'coreBusinessEvents', 'featureStories', 'willWont', 'visions', 'deliveryTypes', 'dataSyncs', 'actionOutcomes'] as SectionKey[]) {
+		const idx = ip[section].findIndex((i: IPCItem) => i.id === nodeId);
+		if (idx !== -1) {
+			ip[section].splice(idx, 1);
+			markDirty();
+			return;
+		}
+	}
+
+	// Check simple string fields encoded as {ipId}-{field}
+	for (const ipEntry of store.model.informationProducts) {
+		for (const field of ['productOwner', 'tshirtSize'] as const) {
+			if (nodeId === `${ipEntry.id}-${field}`) {
+				ipEntry[field] = '';
+				markDirty();
+				return;
+			}
+		}
+	}
+
+	// Check if it's an IP name — delete the entire IP
+	const targetIp = store.model.informationProducts.find((p) => p.id === nodeId);
+	if (targetIp) {
+		removeInformationProduct(nodeId);
+		return;
 	}
 }
 

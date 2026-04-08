@@ -25,6 +25,10 @@
 		maxItems?: number;
 	} = $props();
 
+	async function handleDeleteNode(id: string) {
+		await adapter.deleteNode(id);
+	}
+
 	const atLimit = $derived(maxItems != null && nodes.length >= maxItems);
 
 	// --- Drag-and-drop state ---
@@ -167,7 +171,7 @@
 					>⠿</span>
 				{/if}
 				<div class="flex-1 min-w-0">
-					<CanvasCard {node} {color} onSelect={onSelectNode} />
+					<CanvasCard {node} {color} onSelect={onSelectNode} onDelete={handleDeleteNode} />
 				</div>
 			</div>
 		{:else}

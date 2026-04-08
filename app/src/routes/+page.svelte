@@ -8,6 +8,7 @@
 		getNodesForIp,
 		updateNodeName,
 		updateNodeOrder,
+		removeNodeFromIp,
 		switchTo,
 		newModel,
 		deleteModel
@@ -65,7 +66,7 @@
 			const result = addNodeToIp(node.label ?? '', node.name ?? '');
 			return { id: result?.id ?? createId('node'), label: node.label ?? '', name: node.name ?? '', properties: node.properties ?? {}, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as ContextNode;
 		},
-		onDeleteNode: async () => {},
+		onDeleteNode: async (id) => { removeNodeFromIp(id); },
 		onCreateLink: async (link) => {
 			return { id: createId('link'), source_id: link.source_id ?? '', destination_id: link.destination_id ?? '', label: link.label ?? '', created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as ContextLink;
 		},
@@ -158,7 +159,7 @@
 				onSelectIpc={handleSelectIpc}
 				onSelectNode={handleSelectNode}
 				onAddNode={handleAddNode}
-				showCanvasSelector={false}
+				showSwitcher={false} showToolbar={false} showTabs={false}
 			/>
 		</div>
 	{:else}
