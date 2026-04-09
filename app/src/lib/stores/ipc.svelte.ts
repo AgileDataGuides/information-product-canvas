@@ -79,15 +79,42 @@ export const store = $state({
 	loaded: false
 });
 
-// --- API helpers ---
+// --- Persistence layer ---
+// In demo mode (VITE_DEMO_MODE), all data lives in localStorage.
+// In normal mode, data is persisted via API routes (file-system JSON).
+
+const DEMO_MODE = typeof import.meta !== 'undefined' && import.meta.env?.VITE_DEMO_MODE === 'true';
+const LS_KEY = 'ipc-demo-models';
+
+function lsGetAll(): Record<string, IPCModel> {
+	try {
+		const raw = localStorage.getItem(LS_KEY);
+		return raw ? JSON.parse(raw) : {};
+	} catch { return {}; }
+}
+
+function lsSaveAll(models: Record<string, IPCModel>) {
+	localStorage.setItem(LS_KEY, JSON.stringify(models));
+}
+
+// --- API helpers (swapped by DEMO_MODE) ---
 
 async function apiListModels(): Promise<IPCModel[]> {
+	if (DEMO_MODE) {
+		return Object.values(lsGetAll());
+	}
 	const res = await fetch('/api/models');
 	if (!res.ok) throw new Error(`GET /api/models failed: ${res.status}`);
 	return res.json();
 }
 
 async function apiSaveModel(m: IPCModel): Promise<void> {
+	if (DEMO_MODE) {
+		const all = lsGetAll();
+		all[m.id] = m;
+		lsSaveAll(all);
+		return;
+	}
 	await fetch(`/api/models/${m.id}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
@@ -96,6 +123,12 @@ async function apiSaveModel(m: IPCModel): Promise<void> {
 }
 
 async function apiCreateModel(m: IPCModel): Promise<void> {
+	if (DEMO_MODE) {
+		const all = lsGetAll();
+		all[m.id] = m;
+		lsSaveAll(all);
+		return;
+	}
 	await fetch('/api/models', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -104,7 +137,22 @@ async function apiCreateModel(m: IPCModel): Promise<void> {
 }
 
 async function apiDeleteModel(id: string): Promise<void> {
+	if (DEMO_MODE) {
+		const all = lsGetAll();
+		delete all[id];
+		lsSaveAll(all);
+		return;
+	}
 	await fetch(`/api/models/${id}`, { method: 'DELETE' });
+}
+
+async function apiGetModel(id: string): Promise<IPCModel | null> {
+	if (DEMO_MODE) {
+		return lsGetAll()[id] ?? null;
+	}
+	const res = await fetch(`/api/models/${id}`);
+	if (!res.ok) return null;
+	return res.json();
 }
 
 // --- Init ---
@@ -227,9 +275,9 @@ export async function switchTo(id: string) {
 	if (store.dirty) {
 		try { await saveModel(); } catch { /* best effort */ }
 	}
-	const res = await fetch(`/api/models/${id}`);
-	if (res.ok) {
-		store.model = migrateModel(await res.json());
+	const model = await apiGetModel(id);
+	if (model) {
+		store.model = migrateModel(model);
 		store.selectedIpId = store.model.informationProducts[0]?.id || '';
 		store.dirty = false;
 		if (typeof window !== 'undefined') {

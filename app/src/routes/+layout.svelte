@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	let { children } = $props();
+
+	const demoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 </script>
 
 <svelte:head>
@@ -8,6 +10,12 @@
 </svelte:head>
 
 <div class="flex flex-col h-screen">
+	{#if demoMode}
+		<div class="bg-sky-50 border-b border-sky-200 px-6 py-2 text-center text-xs text-sky-700 shrink-0">
+			<strong>Live Demo</strong> — Your data is saved in your browser's localStorage and never leaves your device.
+			<a href="https://github.com/AgileDataGuides/information-product-canvas" target="_blank" rel="noopener" class="underline hover:text-sky-900 font-medium">Download</a> to run locally with file-based storage.
+		</div>
+	{/if}
 	<main class="flex-1 overflow-hidden flex flex-col">
 		{@render children()}
 	</main>

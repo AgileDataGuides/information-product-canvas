@@ -127,10 +127,10 @@ export function ipcToContextPlane(model: IPCModel): { nodes: ContextNode[]; link
 			addItemNode('ipc_vision', v, 'fulfills_vision');
 		}
 		for (const d of ip.deliveryTypes || []) {
-			addItemNode('ipc_delivery_type', d, 'delivered_via');
+			addItemNode('ipc_delivery_type,global_delivery_type', d, 'delivered_via');
 		}
 		for (const ds of ip.dataSyncs || []) {
-			addItemNode('ipc_data_sync', ds, 'synced_by');
+			addItemNode('ipc_data_sync,global_data_sync', ds, 'synced_by');
 		}
 		for (const ao of ip.actionOutcomes || []) {
 			addItemNode('ipc_action_outcome', ao, 'drives_action');
