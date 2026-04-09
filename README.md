@@ -32,7 +32,7 @@ Double-click `start-IPC.command` (macOS) or run `./start-IPC.sh` from the termin
 
 The app starts at [http://localhost:5115](http://localhost:5115).
 
-**Requires**: [Node.js](https://nodejs.org/) (v18+) and [pnpm](https://pnpm.io/) (`npm install -g pnpm`).
+**Requires**: [Node.js](https://nodejs.org/) (v18+).
 
 ## Features
 
@@ -73,17 +73,18 @@ If you need to share your work, use the **Export** buttons to download files and
 - [SvelteKit 5](https://svelte.dev/) with Svelte 5 runes
 - [Tailwind CSS 4](https://tailwindcss.com/)
 - TypeScript
-- pnpm
 
 ## Learn More
 
-## 📗 Learn More
-
 **Learn how to fill out your first canvas in 30 minutes.**
+
 
 Get the full guide — *An Agile Data Guide to Information Product Canvas* — as an ePub for just $12. Use code **parsecs** at checkout, or [click here to get the discount applied automatically](https://ebooks.agiledataguides.com/discount/parsecs?redirect=%2Fproducts%2Fan-agile-data-guide-to-information-product-canvas).
 
 While you can use the Information Product Canvas app on its own, the full guide walks you through every canvas area with real-world examples, proven patterns, and tips from 10+ years of coaching data teams.
+
+You can also explore free articles on each canvas area on the [Companion Information Product Substack](https://informationproductcanvas.agiledataguides.com/t/canvas-areas).
+
 
 ## Licensing
 
