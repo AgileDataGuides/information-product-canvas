@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Scan shared components (CanvasSection, CanvasCard) for Tailwind utility classes.
+   Without this, classes used only in @context-plane/shared components don't get
+   generated (Tailwind 4's auto-detection doesn't cross workspace boundaries). */
+@source '../../../../packages/shared/src';
+
 html, body {
 	height: 100%;
 	margin: 0;

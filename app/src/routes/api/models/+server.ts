@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import fs from 'fs';
 import path from 'path';
-import { DATA_DIR, safeFilePath, isValidModel } from './utils';
+import { DATA_DIR, safeFilePath, isValidModel, readJsonBody } from './utils';
 
 function ensureDataDir() {
 	if (!fs.existsSync(DATA_DIR)) {
@@ -30,12 +30,9 @@ export const GET: RequestHandler = async () => {
 export const POST: RequestHandler = async ({ request }) => {
 	ensureDataDir();
 
-	const text = await request.text();
-	if (text.length > 5 * 1024 * 1024) {
-		return json({ error: 'Payload too large' }, { status: 413 });
-	}
-
-	const model = JSON.parse(text);
+	const body = await readJsonBody(request);
+	if (!body.ok) return body.response;
+	const model = body.value;
 	if (!isValidModel(model)) {
 		return json({ error: 'Invalid model data' }, { status: 400 });
 	}

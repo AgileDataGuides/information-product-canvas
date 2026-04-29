@@ -3,11 +3,10 @@
 		store,
 		saveModel,
 		exportJSON,
-		importJSON,
 		renameModel,
 		updateDescription
 	} from '$lib/stores/ipc.svelte';
-	import { ipcToContextPlane, contextPlaneToIpc } from '$lib/converters/context-plane';
+	import { ipcToContextPlane } from '$lib/converters/context-plane';
 	import { exportIpcToPptx } from '$lib/export-pptx';
 
 	let {
@@ -93,34 +92,9 @@
 		URL.revokeObjectURL(url);
 	}
 
-	function handleImportJSON() {
-		const input = document.createElement('input');
-		input.type = 'file';
-		input.accept = '.json';
-		input.onchange = async () => {
-			const file = input.files?.[0];
-			if (!file) return;
-			if (file.size > 5 * 1024 * 1024) {
-				alert('File too large (max 5MB)');
-				return;
-			}
-			try {
-				const text = await file.text();
-				const data = JSON.parse(text);
-				if (data.nodes && data.links) {
-					const model = contextPlaneToIpc(data, file.name.replace(/\.json$/, '').replace(/-\d{4}-\d{2}-\d{2}-\d{6}$/, ''));
-					await importJSON(JSON.stringify(model));
-				} else if (data.informationProducts) {
-					await importJSON(text);
-				} else {
-					alert('Invalid JSON — expected IPC model or { nodes, links } format');
-				}
-			} catch {
-				alert('Could not parse JSON file');
-			}
-		};
-		input.click();
-	}
+	// Import handling moved to +page.svelte where it's wired to the header's
+	// Import button (next to New Canvas). This toolbar now only handles
+	// exports + save / rename / description editing.
 
 	async function handleExportPptx() {
 		exportingPptx = true;
@@ -180,19 +154,21 @@
 		</div>
 
 		<div class="flex items-center gap-2 shrink-0">
-			<button
-				onclick={handleExportPptx}
-				disabled={exportingPptx}
-				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-teal-600 border border-teal-300 hover:bg-teal-50 transition-colors disabled:opacity-50"
-			>{exportingPptx ? 'Exporting...' : 'Export PPTX'}</button>
+			<!-- Export JSON on the left (neutral slate — the generic / native format),
+			     Export PPTX on the right (teal-accent — the document-format export).
+			     Matches the button-order convention used elsewhere in the ecosystem. -->
 			<button
 				onclick={handleExportJSON}
 				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
 			>Export JSON</button>
 			<button
-				onclick={handleImportJSON}
-				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
-			>Import JSON</button>
+				onclick={handleExportPptx}
+				disabled={exportingPptx}
+				class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-teal-600 border border-teal-300 hover:bg-teal-50 transition-colors disabled:opacity-50"
+			>{exportingPptx ? 'Exporting...' : 'Export PPTX'}</button>
+			<!-- Import button moved to the app header (next to New Canvas) — see +page.svelte.
+			     That location better communicates that Import creates a NEW canvas rather
+			     than mutating the current one. -->
 		</div>
 	</div>
 </div>

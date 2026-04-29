@@ -11,9 +11,10 @@
 		removeNodeFromIp,
 		switchTo,
 		newModel,
-		deleteModel
+		deleteModel,
+		importJSON
 	} from '$lib/stores/ipc.svelte';
-	import { ipcToContextPlane } from '$lib/converters/context-plane';
+	import { ipcToContextPlane, contextPlaneToIpc } from '$lib/converters/context-plane';
 	import { createStandaloneAdapter } from '$lib/adapters/standalone-adapter';
 	import Toolbar from '$lib/components/Toolbar.svelte';
 	import Instructions from '$lib/components/Instructions.svelte';
@@ -45,6 +46,49 @@
 	async function handleDelete() {
 		if (!confirm(`Delete "${store.model.name}"?`)) return;
 		await deleteModel(store.model.id);
+	}
+
+	/**
+	 * Import an IPC model file as a NEW canvas (never overwrites the current one).
+	 * The store's importJSON handles the creation side: it slugifies the imported
+	 * name against existing IDs (collisions append "-2", "-3"…) and calls
+	 * apiCreateModel, so the existing model is untouched and the new one lands
+	 * alongside it in the saved list.
+	 *
+	 * Accepts either IPC native JSON ({ id, informationProducts, ... }) or a
+	 * Context Plane graph export ({ nodes, links }) — the latter is converted
+	 * back to native via contextPlaneToIpc before import.
+	 */
+	function handleImport() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async () => {
+			const file = input.files?.[0];
+			if (!file) return;
+			if (file.size > 5 * 1024 * 1024) {
+				alert('File too large (max 5MB)');
+				return;
+			}
+			try {
+				const text = await file.text();
+				const data = JSON.parse(text);
+				if (data.nodes && data.links) {
+					const fallbackName = file.name
+						.replace(/\.json$/, '')
+						.replace(/-\d{4}-\d{2}-\d{2}-\d{6}$/, '');
+					const model = contextPlaneToIpc(data, fallbackName);
+					await importJSON(JSON.stringify(model));
+				} else if (data.informationProducts) {
+					await importJSON(text);
+				} else {
+					alert('Invalid JSON — expected IPC model or { nodes, links } format');
+				}
+			} catch {
+				alert('Could not parse JSON file');
+			}
+		};
+		input.click();
 	}
 
 	function createId(prefix: string): string {
@@ -140,6 +184,14 @@
 				<button onclick={() => { showNew = false; newModelName = ''; }} class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-colors">Cancel</button>
 			{:else}
 				<button onclick={() => (showNew = true)} class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-300 border border-slate-600 hover:bg-slate-800 transition-colors">New Canvas</button>
+				<!-- Import sits next to New Canvas because Import IS a creation
+				     action — it always lands as a brand-new canvas alongside
+				     the existing ones, never overwriting the current model. -->
+				<button
+					onclick={handleImport}
+					class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-300 border border-slate-600 hover:bg-slate-800 transition-colors"
+					title="Import an IPC JSON file as a new canvas"
+				>Import</button>
 			{/if}
 
 			<button onclick={handleDelete} class="px-3 py-1.5 text-sm font-medium rounded-lg text-red-400 border border-slate-600 hover:bg-slate-800 transition-colors">Delete</button>

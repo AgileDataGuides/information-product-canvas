@@ -13,7 +13,9 @@
 		onSelectNode,
 		onAddNode,
 		onAddExisting,
-		maxItems
+		maxItems,
+		hideBadges = false,
+		addSuggestions
 	}: {
 		title: string;
 		color: string;
@@ -23,7 +25,21 @@
 		onAddNode: (entityLabel: string, name: string) => void;
 		onAddExisting?: (entityLabel: string) => void;
 		maxItems?: number;
+		/** When true, cards in this section render as name-only (no type-specific
+		 *  metadata badge rows). Details remain available in the node detail popup.
+		 *  Used by the Data Contract Schema / Columns grid to keep it uncluttered. */
+		hideBadges?: boolean;
+		/** Optional predefined values (catalog labels) shown as an HTML datalist
+		 *  on the "+ Add" input. Users can pick one or type their own. The store
+		 *  is responsible for resolving the chosen label back to a catalog key
+		 *  (e.g. via getDeliveryTypeByLabel()). See packages/shared/data/delivery-types.json
+		 *  for the Delivery Types catalog — the first use of this mechanism. */
+		addSuggestions?: string[];
 	} = $props();
+
+	// Unique datalist id per section instance so multiple CanvasSections on
+	// the same page don't collide.
+	const suggestionsListId = `canvas-section-suggestions-${Math.random().toString(36).slice(2, 10)}`;
 
 	async function handleDeleteNode(id: string) {
 		await adapter.deleteNode(id);
@@ -140,7 +156,24 @@
 		</div>
 		{#if adding}
 			<div class="mt-1">
-				<input bind:this={inputEl} bind:value={newName} onkeydown={handleKeydown} onblur={submitAdd} type="text" placeholder="Name..." class="w-full px-2 py-1 text-[11px] border rounded bg-white focus:ring-1 focus:ring-blue-400 focus:border-blue-400 outline-none" style="border-color: {color}40;" />
+				<input
+					bind:this={inputEl}
+					bind:value={newName}
+					onkeydown={handleKeydown}
+					onblur={submitAdd}
+					type="text"
+					placeholder={addSuggestions && addSuggestions.length > 0 ? 'Pick or type a name...' : 'Name...'}
+					list={addSuggestions && addSuggestions.length > 0 ? suggestionsListId : undefined}
+					class="w-full px-2 py-1 text-[11px] border rounded bg-white focus:ring-1 focus:ring-blue-400 focus:border-blue-400 outline-none"
+					style="border-color: {color}40;"
+				/>
+				{#if addSuggestions && addSuggestions.length > 0}
+					<datalist id={suggestionsListId}>
+						{#each addSuggestions as s (s)}
+							<option value={s}></option>
+						{/each}
+					</datalist>
+				{/if}
 			</div>
 		{/if}
 		{#if nodes.length >= 5}
@@ -171,7 +204,7 @@
 					>⠿</span>
 				{/if}
 				<div class="flex-1 min-w-0">
-					<CanvasCard {node} {color} onSelect={onSelectNode} onDelete={handleDeleteNode} />
+					<CanvasCard {node} {color} onSelect={onSelectNode} onDelete={handleDeleteNode} {hideBadges} />
 				</div>
 			</div>
 		{:else}

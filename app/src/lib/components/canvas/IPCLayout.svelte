@@ -320,6 +320,17 @@
 				</div>
 
 				<div class="flex items-center gap-2 shrink-0">
+					<!-- Export JSON on the left (neutral slate — generic / native format),
+					     Export PPTX on the right (teal-accent — document-format export).
+					     Matches the button-order convention used across the ecosystem. -->
+					{#if onExportJson}
+						<button
+							class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
+							onclick={() => onExportJson(selectedModel?.name ?? '')}
+						>
+							Export JSON
+						</button>
+					{/if}
 					{#if onExportPptx}
 						<button
 							class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-teal-600 border border-teal-300 hover:bg-teal-50 transition-colors disabled:opacity-50"
@@ -327,14 +338,6 @@
 							onclick={async () => { exportingPptx = true; try { await onExportPptx!(); } finally { exportingPptx = false; } }}
 						>
 							{exportingPptx ? 'Exporting...' : 'Export PPTX'}
-						</button>
-					{/if}
-					{#if onExportJson}
-						<button
-							class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition-colors"
-							onclick={() => onExportJson(selectedModel?.name ?? '')}
-						>
-							Export JSON
 						</button>
 					{/if}
 					{#if onImportJson}

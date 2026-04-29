@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import type { DataAdapter, ContextNode } from '$lib/types/shared';
+	import { getNodeLabels } from '$lib/types/shared';
 
 	const adapter = getContext<DataAdapter>('dataAdapter');
 
@@ -9,18 +10,48 @@
 		color = '#6b7280',
 		onSelect,
 		onDelete,
-		isSelected = false
+		isSelected = false,
+		hideBadges = false
 	}: {
 		node: ContextNode;
 		color?: string;
 		onSelect: (id: string) => void;
 		onDelete?: (id: string) => void;
 		isSelected?: boolean;
+		/** When true, suppresses the dict_column / global_policy metadata badge rows.
+		 *  Used by sections that want minimal, name-only cards (e.g. the Data Contract
+		 *  Schema / Columns grid where the detail popup carries the full metadata). */
+		hideBadges?: boolean;
 	} = $props();
 
 	let editingName = $state(false);
 	let editName = $state('');
 	let nameInputEl = $state<HTMLInputElement | null>(null);
+
+	// dict_column nodes render compact metadata badges (dataType, PK, UNIQUE, REQ, classification)
+	// below the name, matching the Agreement view schema table. Kept here (in the shared card)
+	// because dict_column is a globally-defined entity label and the metadata is useful
+	// everywhere columns appear (Data Dictionary canvas, Data Contract tab).
+	const isColumn = $derived(getNodeLabels(node).includes('dict_column'));
+	const colProps = $derived(node.properties || {});
+	const classificationLabel = $derived(
+		(colProps.classification as string | undefined)?.trim() || ''
+	);
+
+	// global_policy = Trust Rule (v2.1.1 Policy-shape). Shows category badge + target-field
+	// badge so the "which field does this rule check?" story stays visible at a glance —
+	// matching the Agreement view Trust Rules clause. Legacy `ruleType` / `operator` /
+	// `threshold` properties fall back into the category + rule display so pre-migration
+	// graphs still read cleanly.
+	const isTrustRule = $derived(getNodeLabels(node).includes('global_policy'));
+	const ruleCategory = $derived(
+		((colProps.category as string | undefined)?.trim())
+			|| (() => {
+				const rt = (colProps.ruleType as string | undefined)?.trim() || '';
+				return rt ? rt.charAt(0).toUpperCase() + rt.slice(1) : '';
+			})()
+	);
+	const ruleColumn = $derived((colProps.column as string | undefined)?.trim() || '');
 
 	function startEditName(e: MouseEvent) {
 		e.stopPropagation();
@@ -76,17 +107,61 @@
 					{node.name}
 				</button>
 			{/if}
+
+			{#if isColumn && !hideBadges}
+				<!-- Column metadata flag badges — see DESIGN_SYSTEM.md § Column Metadata Flag Badges -->
+				<div class="mt-1 flex flex-wrap gap-1">
+					{#if colProps.dataType}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-mono font-semibold bg-orange-50 text-orange-700 border border-orange-200">
+							{colProps.dataType}
+						</span>
+					{/if}
+					{#if colProps.primaryKey}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">PK</span>
+					{/if}
+					{#if colProps.unique}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">UNIQUE</span>
+					{/if}
+					{#if colProps.required}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-red-50 text-red-700 border border-red-200">REQ</span>
+					{/if}
+					{#if classificationLabel && classificationLabel !== 'public'}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+							{classificationLabel}
+						</span>
+					{/if}
+				</div>
+			{/if}
+
+			{#if isTrustRule && !hideBadges}
+				<!-- Trust Rule flag badges — see DESIGN_SYSTEM.md § Trust Rule Flag Badges -->
+				<div class="mt-1 flex flex-wrap gap-1">
+					{#if ruleCategory}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+							{ruleCategory}
+						</span>
+					{/if}
+					{#if ruleColumn === '*'}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200" title="Applies to every row (table-level rule)">
+							ALL
+						</span>
+					{:else if ruleColumn}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200" title="Validates column {ruleColumn}">
+							{ruleColumn}
+						</span>
+					{:else}
+						<span class="inline-block px-1 py-0 rounded text-[9px] font-semibold bg-slate-100 text-slate-400 italic border border-slate-200 border-dashed" title="No target field set">
+							no field
+						</span>
+					{/if}
+				</div>
+			{/if}
+
 		</div>
-		{#if onDelete && !editingName}
-			<button
-				onclick={(e) => { e.stopPropagation(); onDelete(node.id); }}
-				class="w-4 h-4 shrink-0 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-red-100 text-slate-300 hover:text-red-500 transition-all"
-				title="Delete"
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3">
-					<path fill-rule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5A.75.75 0 0 1 9.95 6Z" clip-rule="evenodd" />
-				</svg>
-			</button>
-		{/if}
+		<!-- Per-card hover trash icon removed. Card-level deletion goes through the
+		     opened detail (NodeDetailPanel on CP, app-specific edit modal on SA — e.g.
+		     BEM's domain/concept modal has a Delete button). The `onDelete` prop is
+		     kept on the API so sections that want a custom inline delete can still
+		     wire one — but the shared card no longer renders a trash affordance. -->
 	</div>
 </div>

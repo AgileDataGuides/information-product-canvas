@@ -1,0 +1,34 @@
+# Dependabot config — https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Watches the SvelteKit app's package.json and the GitHub Actions workflows.
+# Groups patch + minor updates so we don't get a flood of single-package PRs.
+
+version: 2
+updates:
+  # SA app dependencies (SvelteKit, pptxgenjs, …)
+  - package-ecosystem: "npm"
+    directory: "/app"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Pacific/Auckland"
+    open-pull-requests-limit: 5
+    groups:
+      patch-and-minor:
+        update-types: ["patch", "minor"]
+    labels:
+      - "dependencies"
+
+  # GitHub Actions used by deploy-demo.yml
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Pacific/Auckland"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
