@@ -1,0 +1,49 @@
+name: Build on PR
+
+# Runs typecheck + production build + demo build on every pull request to main.
+# Catches breakage before merge — particularly important for Dependabot major
+# version bumps which would otherwise land without CI verification.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-on-pr-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Production build
+        run: pnpm build
+
+      - name: Static demo build
+        run: pnpm build:demo
+        env:
+          DEMO_BUILD: 'true'
+          VITE_DEMO_MODE: 'true'
