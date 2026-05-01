@@ -1,7 +1,7 @@
 /**
  * Bidirectional converter between IPC native JSON and Context Plane { nodes, links } format.
  */
-import type { ContextNode, ContextLink } from '$lib/types/shared';
+import type { ContextNode, ContextLink } from '$lib/cp-shared';
 import type { IPCModel, InformationProduct, IPCItem, BusinessQuestion } from '../types';
 
 function createId(prefix: string): string {

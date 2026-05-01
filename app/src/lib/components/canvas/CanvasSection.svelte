@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CanvasCard from './CanvasCard.svelte';
-	import type { ContextNode, DataAdapter } from '$lib/types/shared';
+	import type { ContextNode, DataAdapter } from '$lib/cp-shared';
 	import { getContext } from 'svelte';
 
 	const adapter = getContext<DataAdapter>('dataAdapter');

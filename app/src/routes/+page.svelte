@@ -19,7 +19,8 @@
 	import Toolbar from '$lib/components/Toolbar.svelte';
 	import Instructions from '$lib/components/Instructions.svelte';
 	import IPCLayout from '$lib/components/canvas/IPCLayout.svelte';
-	import type { ContextNode, ContextLink } from '$lib/types/shared';
+	import CardEditModal from '$lib/components/canvas/CardEditModal.svelte';
+	import type { ContextNode, ContextLink } from '$lib/cp-shared';
 
 	let activeTab = $state<string>('canvas');
 
@@ -128,8 +129,37 @@
 		selectIp(id);
 	}
 
+	// Card edit modal — clicking a card opens the modal to edit name/description
+	// or delete the card. Mirrors the popup pattern from CP NodeDetailPanel and
+	// the SA BEM column-header modal.
+	let editingCardId = $state<string | null>(null);
+	const editingCardNode = $derived(
+		editingCardId ? nodes.find((n) => n.id === editingCardId) ?? null : null
+	);
+
 	function handleSelectNode(id: string) {
-		// In standalone mode, node selection is a no-op for now
+		editingCardId = id;
+	}
+
+	async function handleCardSave(updates: { name: string; description: string }) {
+		if (!editingCardId) return;
+		await adapter.updateNode(editingCardId, updates);
+	}
+
+	async function handleCardDelete() {
+		if (!editingCardId) return;
+		await adapter.deleteNode(editingCardId);
+	}
+
+	function entityTypeLabel(node: ContextNode | null): string {
+		if (!node) return 'Card';
+		const labels = node.label.split(',').map((l) => l.trim());
+		if (labels.includes('global_persona')) return 'Persona';
+		if (labels.includes('global_business_question')) return 'Business Question';
+		if (labels.includes('global_info_product')) return 'Information Product';
+		if (labels.includes('global_data_asset')) return 'Data Asset';
+		if (labels.some((l) => l.startsWith('ipc_'))) return 'Card';
+		return 'Card';
 	}
 
 	function handleAddNode(entityLabel: string, name: string) {
@@ -226,4 +256,14 @@
 	<div class="p-6 overflow-y-auto flex-1">
 		<Instructions />
 	</div>
+{/if}
+
+{#if editingCardNode}
+	<CardEditModal
+		node={editingCardNode}
+		typeLabel={entityTypeLabel(editingCardNode)}
+		onSave={handleCardSave}
+		onDelete={handleCardDelete}
+		onClose={() => (editingCardId = null)}
+	/>
 {/if}

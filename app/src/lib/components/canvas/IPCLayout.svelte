@@ -1,7 +1,7 @@
 <script lang="ts">
-	import CanvasSection from './CanvasSection.svelte';
-	import type { ContextNode, ContextLink, DataAdapter } from '$lib/types/shared';
-	import { getNodeLabels } from '$lib/types/shared';
+	import CanvasSection from '$lib/components/canvas/CanvasSection.svelte';
+	import type { ContextNode, ContextLink, DataAdapter } from '$lib/cp-shared';
+	import { getNodeLabels } from '$lib/cp-shared';
 	import { getContext } from 'svelte';
 
 	const adapter = getContext<DataAdapter>('dataAdapter');

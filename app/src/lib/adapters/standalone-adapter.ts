@@ -1,4 +1,4 @@
-import type { DataAdapter, ContextNode, ContextLink } from '$lib/types/shared';
+import type { DataAdapter, ContextNode, ContextLink } from '$lib/cp-shared';
 
 /**
  * Full DataAdapter for IPC standalone mode.

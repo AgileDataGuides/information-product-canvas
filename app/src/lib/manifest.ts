@@ -1,4 +1,4 @@
-import type { AppManifest, EntityTypeDefinition, RelationshipTypeDefinition } from '$lib/types/shared';
+import type { AppManifest, EntityTypeDefinition, RelationshipTypeDefinition } from '$lib/cp-shared';
 
 const entityTypes: EntityTypeDefinition[] = [
 	{ label: 'global_info_product', displayName: 'Information Product', shape: 'diamond', color: '#f59e0b', category: 'global', isGlobal: true },
