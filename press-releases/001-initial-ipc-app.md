@@ -2,28 +2,39 @@
 
 **25 March 2026**
 
-AgileDataGuides today announced the release of the Information Product Canvas, a free, open-source app that helps data teams gather and organise requirements for Information Products.
+AgileDataGuides today released the Information Product Canvas, a free, open-source app that helps data teams gather and organise the requirements for an Information Product before they start building it. Each canvas captures the personas, business questions, business events, vision, delivery types, action outcomes, and explicit will/won't scope decisions in one structured visual layout.
 
 ## The Problem
 
-Data teams frequently struggle to capture what an Information Product needs to deliver. Requirements are scattered across emails, meeting notes, and spreadsheets. There is no single place to define who the product is for, what questions it answers, how it will be delivered, and what events feed it.
+Most "information product" projects start with a slide deck, a Confluence page, or a sprawling Slack thread. Six months in, nobody can find the answers to the most basic questions: who is this for, what questions does it answer, what's in scope, what's NOT in scope, and what feeds it. Requirements get re-derived every time someone new joins, and the product drifts because the original commitments are nowhere to be found.
 
 ## The Solution
 
-The Information Product Canvas provides a structured, visual layout based on the AgileData Information Product Canvas pattern template. Teams open the app in their browser, fill in the canvas sections, and have a complete, shareable requirements document within minutes.
+The Information Product Canvas provides a single canonical artefact for an Information Product's requirements. Open the app in a browser, fill in the canvas sections, and the team has a complete shareable requirements document within an hour. Each canvas captures every section needed to design and deliver the product:
 
-Each canvas captures everything needed to design and deliver an Information Product: the personas who will use it, the business questions it answers, the core business events that feed it, vision statements, delivery types, feature stories, and explicit will/won't scope decisions.
+- **Personas** — who will use the Information Product
+- **Business Questions** — what they need answered
+- **Action Outcomes** — what decisions or actions the product enables
+- **Core Business Events** — events the product is anchored to
+- **Vision** — the long-term aspirational state the product helps deliver
+- **Delivery Types** — how the data gets to the consumer (Looker, BigQuery, dbt, …)
+- **Will / Won't** — explicit scope decisions in both directions
+- **Features** — user stories sized in T-shirts (S/M/L/XL)
+- **Information Product** — the product itself with its name, owner, and t-shirt size
 
 ## How It Works
 
-Users double-click the start script to launch the app locally. The canvas appears as a five-column grid. Click any section to add items. Double-click to edit. Changes are saved automatically. When the canvas is ready, export it as JSON to share with colleagues or feed into other tools.
+Users double-click `start-IPC.command` (macOS) or run `./start-IPC.sh` to launch the app at `localhost:5115`. The canvas appears as a five-column grid, colour-coded by section. Click `+ Add` on any section to add an item. Click an item to view, click again to inline-edit. Changes auto-save to a JSON file in the `data/` folder so they're version-controllable, diffable, and Claude-readable.
+
+Multiple canvases can live side by side via the canvas dropdown — switch between them with one click. The app ships with a starter "SaaS Revenue Metrics" example canvas that demonstrates a complete, real-world Information Product so users land on a populated app the first time they open it.
 
 ## Key Benefits
 
-- **One place for all requirements** — no more chasing information across documents and tools
-- **Visual structure** — the canvas layout guides teams through every aspect of an Information Product
-- **Multiple canvases** — create separate canvases for each Information Product and switch between them
-- **Works with Claude** — export the canvas as JSON and use it with Claude to review, improve, and extend your requirements
+- **One canonical answer** — every requirement lives in one place, not scattered across docs
+- **Visual structure** — the canvas layout walks teams through every aspect of an Information Product, no requirement gets forgotten
+- **Multiple canvases** — model different products in separate canvases, switch between them with one click
+- **JSON-native** — versionable, diff-able, fits any docs or code repo
+- **Works with Claude** — export the canvas as JSON and use it with Claude Code or Claude Chat to review, improve, and extend requirements
 - **Runs locally** — no cloud accounts, no sign-ups, your data stays on your machine
 
 The Information Product Canvas is available now at [github.com/AgileDataGuides/information-product-canvas](https://github.com/AgileDataGuides/information-product-canvas).

@@ -19,13 +19,11 @@ Only the latest commit on `main` is supported. We don't backport security fixes 
 
 ## Reporting a vulnerability
 
-Please report security issues privately to [shane.gibson@agiledata.io](mailto:shane.gibson@agiledata.io). Include:
+Please report security issues privately to [security@AgileDataGuides.com](mailto:security@AgileDataGuides.com). Include:
 
 - A description of the issue and the impact you believe it has.
 - Steps to reproduce, or a proof-of-concept if available.
 - The commit SHA you tested against.
-
-We aim to acknowledge within **3 working days** (NZ time) and fix or publicly document within **14 days** for issues with realistic impact under the stated threat model.
 
 **Do NOT** open a public GitHub issue for vulnerability reports — opening one accidentally is fine, just close it and email us instead.
 
