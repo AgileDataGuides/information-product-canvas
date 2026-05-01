@@ -1,6 +1,13 @@
 node_modules/
 .svelte-kit/
 build/
+# Never commit package-lock.json. The monorepo uses pnpm; the standalone
+# public repo is run via `npm install` by users, who generate their own
+# lockfile locally. A committed lockfile would pin them to whatever
+# transitive versions resolved on the publishing machine — which is how
+# npm ERESOLVE conflicts leak through to users.
+app/package-lock.json
+package-lock.json
 data/*.json
 !data/saas-revenue-metrics.json
 .DS_Store

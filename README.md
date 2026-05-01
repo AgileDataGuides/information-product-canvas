@@ -36,7 +36,7 @@ The demo includes the *SaaS Revenue Metrics* example canvas so you can explore t
 
 For full functionality including file-based storage and Claude Code integration, run it locally.
 
-Double-click `start-IPC.command` (macOS) or run `./start-IPC.sh` from the terminal.
+Run `./start-IPC.sh` from the terminal.
 
 The app starts at [http://localhost:5115](http://localhost:5115).
 

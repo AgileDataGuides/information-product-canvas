@@ -7,7 +7,14 @@
 *.svelte.ts linguist-language=Svelte
 
 # Bundled from the workspace shared package by publish-app.sh — not
-# user-written code.
+# user-written code, doesn't reflect this app's character.
+app/src/lib/cp-shared.ts linguist-vendored=true
+app/src/lib/shared-data/** linguist-vendored=true
+app/src/lib/languages/** linguist-vendored=true
+
+# Legacy path from older publishes (kept here so a re-publish over an
+# existing checkout that still has the old file in git history doesn't
+# falsely classify it).
 app/src/lib/types/shared.ts linguist-vendored=true
 
 # SvelteKit-generated artefacts.
