@@ -12,7 +12,7 @@
 // In demo mode, this seed file ensures the SaaS Revenue Metrics example
 // is always populated, with publisher updates reaching returning visitors.
 
-import { applyDemoSeeds } from '@context-plane/shared/demo-seed';
+import { applyDemoSeeds } from '$lib/cp-shared-demo-seed';
 import type { IPCModel } from '../types';
 
 import saasRevenueMetrics from '$data/saas-revenue-metrics.json';
