@@ -10,6 +10,7 @@ app/package-lock.json
 package-lock.json
 data/*.json
 !data/saas-revenue-metrics.json
+!data/saas-revenue-metrics-2.json
 .DS_Store
 .env
 .env.*
