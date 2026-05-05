@@ -14,6 +14,7 @@
 		deleteModel,
 		importJSON
 	} from '$lib/stores/ipc.svelte';
+	import { applyIpcDemoSeeds } from '$lib/stores/demo-seed';
 	import { ipcToContextPlane, contextPlaneToIpc } from '$lib/converters/context-plane';
 	import { createStandaloneAdapter } from '$lib/adapters/standalone-adapter';
 	import Toolbar from '$lib/components/Toolbar.svelte';
@@ -120,6 +121,11 @@
 	setContext('dataAdapter', adapter);
 
 	onMount(() => {
+		// Apply demo seeds BEFORE initStore so the store sees seeded localStorage
+		// as the source of truth on first/cold visit. No-op outside demo mode.
+		const isDemo = import.meta.env.VITE_DEMO_MODE === 'true';
+		if (isDemo) applyIpcDemoSeeds();
+
 		initStore();
 	});
 
