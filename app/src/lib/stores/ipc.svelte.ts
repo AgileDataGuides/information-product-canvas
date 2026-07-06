@@ -509,6 +509,32 @@ export function updateNodeName(nodeId: string, newName: string) {
 }
 
 /**
+ * Update a node description (card edit modal). Composite `{ipId}-{field}`
+ * pseudo-nodes (productOwner / tshirtSize) carry no description, so they are
+ * intentionally not handled here.
+ */
+export function updateNodeDescription(nodeId: string, description: string) {
+	const ip = getSelectedIp();
+	if (ip) {
+		for (const section of ['personas', 'businessQuestions', 'coreBusinessEvents', 'featureStories', 'willWont', 'visions', 'deliveryTypes', 'dataSyncs', 'actionOutcomes'] as SectionKey[]) {
+			const item = ip[section].find((i: IPCItem) => i.id === nodeId);
+			if (item) {
+				item.description = description;
+				markDirty();
+				return;
+			}
+		}
+	}
+
+	// The IP node itself also exposes a description
+	const targetIp = store.model.informationProducts.find((p) => p.id === nodeId);
+	if (targetIp) {
+		targetIp.description = description;
+		markDirty();
+	}
+}
+
+/**
  * Update the order of a node (used by drag-and-drop reordering).
  */
 export function updateNodeOrder(nodeId: string, order: number) {

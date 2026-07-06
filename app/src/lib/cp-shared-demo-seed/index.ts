@@ -52,7 +52,6 @@
 
 export interface DemoSeed {
 	id: string;
-	[key: string]: unknown;
 }
 
 export interface DemoSeedConfig<T extends DemoSeed> {

@@ -16,17 +16,18 @@ import { applyDemoSeeds } from '$lib/cp-shared-demo-seed';
 import type { IPCModel } from '../types';
 
 import saasRevenueMetrics from '$data/saas-revenue-metrics.json';
-import saasRevenueMetrics2 from '$data/saas-revenue-metrics-2.json';
 
 const LS_KEY = 'ipc-demo-models';
 const SEED_VERSION_KEY = 'ipc-demo-seed-version';
 
 /** Bump when bundled JSONs change. ISO date format. */
-const SEED_VERSION = '2026-05-05';
+const SEED_VERSION = '2026-06-12';
 
+// saas-revenue-metrics-2.json was a local-only second example that was never
+// git-tracked and has been lost from disk — the canonical seed (per CLAUDE.md
+// § Example Data Theme) is saas-revenue-metrics.json alone.
 const SEEDS: IPCModel[] = [
-	saasRevenueMetrics as unknown as IPCModel,
-	saasRevenueMetrics2 as unknown as IPCModel
+	saasRevenueMetrics as unknown as IPCModel
 ];
 
 /**

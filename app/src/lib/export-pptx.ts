@@ -170,7 +170,7 @@ function addVisionCell(
 	}
 }
 
-/** Parse vision string into FOR/WHO/THE/THAT/UNLIKE parts, falling back to simple display */
+/** Parse vision into FOR/WHO/THE/THAT/UNLIKE parts, falling back to simple display */
 function parseVision(ip: InformationProduct): Record<string, string> {
 	const result: Record<string, string> = {
 		FOR: '',
@@ -180,7 +180,26 @@ function parseVision(ip: InformationProduct): Record<string, string> {
 		UNLIKE: '',
 	};
 
-	// If vision is a structured string, try to parse it
+	// Primary source: the visions[] items — each is a labelled line like
+	// "FOR the Chief Revenue Officer," / "WHO needs to ...".
+	for (const item of ip.visions || []) {
+		const m = (item.name || '').match(/^\s*(FOR|WHO|THE|THAT|UNLIKE)\b\s*(.*)$/i);
+		if (m) {
+			const slot = m[1].toUpperCase();
+			const value = m[2].replace(/,\s*$/, '').trim();
+			if (value && !result[slot]) result[slot] = value;
+		} else if (item.name && !result.THAT) {
+			result.THAT = item.name.trim();
+		}
+	}
+	if (result.FOR || result.WHO || result.THAT || result.UNLIKE) {
+		if (!result.FOR && ip.personas.length > 0) {
+			result.FOR = ip.personas.map((p) => p.name).join(', ');
+		}
+		return result;
+	}
+
+	// Legacy fallback: the deprecated single vision string.
 	const vision = ip.vision || '';
 	if (vision) {
 		// Try to parse "For X, who Y, the Z that W, unlike U" pattern
@@ -375,17 +394,19 @@ function addIpSlide(pres: PptxGenJS, ip: InformationProduct) {
 	// ── Canvas grid ──
 
 	// Row 1: Outcomes/Actions | Vision (spans rows 1+2) | Personas | Delivery Types / Data Sync
+	// Primary source is actionOutcomes[]; legacy bq.actionOutcome strings are
+	// unioned in (deduped) for unmigrated input.
+	const outcomeNames = ip.actionOutcomes.map((ao) => ao.name);
+	const outcomeSeen = new Set(outcomeNames.map((n) => n.toLowerCase()));
+	for (const bq of ip.businessQuestions) {
+		if (bq.actionOutcome && !outcomeSeen.has(bq.actionOutcome.toLowerCase())) {
+			outcomeNames.push(bq.actionOutcome);
+			outcomeSeen.add(bq.actionOutcome.toLowerCase());
+		}
+	}
 	addCell(slide, COL1_X, ROW1_Y, COL1_W, TOP_H,
 		'Outcomes / Actions',
-		ip.businessQuestions
-			.filter((bq) => bq.actionOutcome)
-			.map((bq) => bq.actionOutcome)
-			.concat(
-				// If no action outcomes, show a note
-				ip.businessQuestions.filter((bq) => bq.actionOutcome).length === 0
-					? []
-					: []
-			)
+		outcomeNames
 	);
 
 	// Vision spans rows 1 + 2
@@ -400,13 +421,17 @@ function addIpSlide(pres: PptxGenJS, ip: InformationProduct) {
 	// Delivery Types (top of col4)
 	addCell(slide, COL4_X, ROW1_Y, COL4_W, DELIVERY_H,
 		'Delivery Types',
-		ip.deliveryType ? [ip.deliveryType] : []
+		ip.deliveryTypes.length > 0
+			? ip.deliveryTypes.map((d) => d.name)
+			: ip.deliveryType ? [ip.deliveryType] : []
 	);
 
 	// Data Sync (bottom of col4, top area)
 	addCell(slide, COL4_X, ROW1_Y + DELIVERY_H, COL4_W, DATASYNC_H,
 		'Data Sync',
-		ip.dataSync ? [ip.dataSync] : []
+		ip.dataSyncs.length > 0
+			? ip.dataSyncs.map((d) => d.name)
+			: ip.dataSync ? [ip.dataSync] : []
 	);
 
 	// Row 2: Business Questions | (Vision continues) | Core Business Events (spans cols 3+4)

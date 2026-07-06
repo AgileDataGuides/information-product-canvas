@@ -2,11 +2,18 @@
 	import { getContext } from 'svelte';
 	import type { ContextNode, ContextLink, DataAdapter } from '$lib/cp-shared';
 	import { getNodeLabels } from '$lib/cp-shared';
+	import CellDropdown, { type CellDropdownOption } from './CellDropdown.svelte';
 
 	let {
 		nodes,
 		links = [],
-		editable = false
+		editable = false,
+		trustRules,
+		columnTrustRules,
+		onSetColumnTrustRules,
+		glossaryTermsCatalog,
+		columnGlossaryTerms,
+		onSetColumnGlossaryTerms
 	}: {
 		nodes: ContextNode[];
 		links?: ContextLink[];
@@ -14,7 +21,25 @@
 		 *  the DataAdapter from context. Used by the Data Contract Dictionary tab.
 		 *  When false (default), the table is read-only. */
 		editable?: boolean;
+		/** Optional Trust Rule catalog. When supplied (Data Contract only) the
+		 *  Trust Rule cell becomes a click-to-multiselect picker; when absent
+		 *  the cell shows a static label. */
+		trustRules?: CellDropdownOption[];
+		/** Per-column Trust Rule attachments. Required when `trustRules` is set. */
+		columnTrustRules?: Record<string, string[]>;
+		/** Persist callback fired when the user toggles a TR checkbox. Required
+		 *  when `trustRules` is set. */
+		onSetColumnTrustRules?: (columnId: string, ruleIds: string[]) => void;
+		/** Optional Glossary Term catalog. Same shape as `trustRules`. */
+		glossaryTermsCatalog?: CellDropdownOption[];
+		/** Per-column Glossary Term attachments. */
+		columnGlossaryTerms?: Record<string, string[]>;
+		/** Persist callback for glossary term checkbox toggles. */
+		onSetColumnGlossaryTerms?: (columnId: string, termIds: string[]) => void;
 	} = $props();
+
+	const showTrustRulePicker = $derived(!!trustRules && !!columnTrustRules && !!onSetColumnTrustRules);
+	const showGlossaryPicker = $derived(!!glossaryTermsCatalog && !!columnGlossaryTerms && !!onSetColumnGlossaryTerms);
 
 	// Adapter is only needed when editing. Consumers that render read-only can
 	// safely mount this component without providing one in context.
@@ -185,6 +210,7 @@
 			classification: 'classification',
 			sourceSystem: 'sourceSystem',
 			businessRule: 'businessRule',
+			trustRule: 'businessRule',
 			glossaryTerm: 'glossaryTerm'
 		};
 		const boolKeyMap: Record<string, keyof TableRow> = {
@@ -222,7 +248,7 @@
 		return sortAsc ? '↑' : '↓';
 	}
 
-	const columns = [
+	const columns = $derived([
 		{ id: 'dataset', label: 'Data Asset' },
 		{ id: 'column', label: 'Column' },
 		{ id: 'description', label: 'Description' },
@@ -232,9 +258,14 @@
 		{ id: 'required', label: 'Required' },
 		{ id: 'classification', label: 'Classification' },
 		{ id: 'sourceSystem', label: 'Source System' },
-		{ id: 'businessRule', label: 'Business Rule' },
+		// Trust Rule — when caller provides the catalog (Data Contract), the cell
+		// becomes a click-to-multiselect picker for predefined rules; otherwise
+		// renders the legacy free-text Business Rule from column properties.
+		{ id: 'trustRule', label: showTrustRulePicker ? 'Trust Rule' : 'Business Rule' },
+		// Glossary Term — same pattern as Trust Rule. Picker when caller provides
+		// `glossaryTermsCatalog`, else legacy single-string rendering.
 		{ id: 'glossaryTerm', label: 'Glossary Term' }
-	];
+	]);
 </script>
 
 <div class="flex-1 overflow-auto p-4 bg-slate-50">
@@ -398,9 +429,20 @@
 							{/if}
 						</td>
 
-						<!-- Business Rule — click-to-edit free text -->
+						<!-- Trust Rule — click-to-multiselect when caller provides the
+						     catalog (Data Contract); falls back to legacy free-text
+						     "Business Rule" cell for other consumers (Data Dictionary). -->
 						<td class="px-3 py-2 text-slate-500">
-							{#if editable && editingKey === `${row.columnId}:businessRule` && row.columnId}
+							{#if showTrustRulePicker && trustRules && columnTrustRules && onSetColumnTrustRules && row.columnId}
+								<CellDropdown
+									selected={columnTrustRules[row.columnId] ?? []}
+									options={trustRules}
+									onchange={(ids) => onSetColumnTrustRules(row.columnId, ids)}
+									placeholder="Select trust rule..."
+									chipClass="inline-block px-1.5 py-0.5 text-[11px] rounded bg-violet-50 text-violet-700 border border-violet-200"
+									emptyOptionsMessage="No trust rules defined yet. Create them in the Trust Rules tab."
+								/>
+							{:else if editable && editingKey === `${row.columnId}:businessRule` && row.columnId}
 								<input type="text" value={editingValue}
 									oninput={(e) => (editingValue = e.currentTarget.value)}
 									onblur={() => commitText(row.columnId, 'businessRule')}
@@ -418,16 +460,27 @@
 							{/if}
 						</td>
 
-						<!-- Glossary Term — read-only (lives as a separate node + link) -->
+						<!-- Glossary Term — click-to-multiselect when caller provides the
+						     catalog (Data Contract); falls back to legacy single-string
+						     read-only chip for other consumers. -->
 						<td class="px-3 py-2">
-							{#if row.glossaryTerm}
+							{#if showGlossaryPicker && glossaryTermsCatalog && columnGlossaryTerms && onSetColumnGlossaryTerms && row.columnId}
+								<CellDropdown
+									selected={columnGlossaryTerms[row.columnId] ?? []}
+									options={glossaryTermsCatalog}
+									onchange={(ids) => onSetColumnGlossaryTerms(row.columnId, ids)}
+									placeholder="Select glossary term..."
+									chipClass="inline-block px-1.5 py-0.5 text-[11px] rounded bg-green-50 text-green-700 border border-green-200"
+									emptyOptionsMessage="No glossary terms defined yet. Add them on the Canvas tab."
+								/>
+							{:else if row.glossaryTerm}
 								<span class="inline-block px-1.5 py-0.5 text-[11px] rounded bg-green-50 text-green-700 border border-green-200">{row.glossaryTerm}</span>
 							{/if}
 						</td>
 					</tr>
 				{:else}
 					<tr>
-						<td colspan="11" class="px-3 py-8 text-center text-slate-400 text-sm">
+						<td colspan={columns.length} class="px-3 py-8 text-center text-slate-400 text-sm">
 							{#if searchQuery}
 								No matches for "{searchQuery}"
 							{:else}

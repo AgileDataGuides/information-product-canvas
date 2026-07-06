@@ -7,6 +7,7 @@
 		addNodeToIp,
 		getNodesForIp,
 		updateNodeName,
+		updateNodeDescription,
 		updateNodeOrder,
 		removeNodeFromIp,
 		switchTo,
@@ -104,6 +105,8 @@
 		},
 		onUpdateNode: (id, updates) => {
 			if (updates.name) updateNodeName(id, updates.name);
+			// !== undefined so clearing a description to '' still saves
+			if (updates.description !== undefined) updateNodeDescription(id, updates.description ?? '');
 			if (updates.properties && typeof updates.properties.order === 'number') {
 				updateNodeOrder(id, updates.properties.order);
 			}
