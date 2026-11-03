@@ -32,13 +32,22 @@ function migrateModel(model: IPCModel): IPCModel {
 		}
 		delete (ip as any).dataSync;
 
-		// Migrate actionOutcome from businessQuestions → actionOutcomes[]
+		// Migrate every distinct bq.actionOutcome → actionOutcomes[] (deduped by
+		// name, as the PPTX export does), then clear the legacy field. Only into
+		// an empty list: a non-empty one means the old migration already ran (it
+		// moved the first value only) and the user may since have renamed or
+		// deleted that card, so the legacy strings are left as they are. The
+		// field stays on the BQ type for backward compat.
 		if (!ip.actionOutcomes) ip.actionOutcomes = [];
-		for (const bq of ip.businessQuestions) {
-			if (bq.actionOutcome && ip.actionOutcomes.length === 0) {
-				ip.actionOutcomes.push({ id: createId('ao'), name: bq.actionOutcome, description: '' });
+		if (ip.actionOutcomes.length === 0) {
+			const seenOutcomes = new Set<string>();
+			for (const bq of ip.businessQuestions) {
+				if (bq.actionOutcome && !seenOutcomes.has(bq.actionOutcome.toLowerCase())) {
+					ip.actionOutcomes.push({ id: createId('ao'), name: bq.actionOutcome, description: '' });
+					seenOutcomes.add(bq.actionOutcome.toLowerCase());
+				}
+				bq.actionOutcome = '';
 			}
-			// Keep the field on BQ type for backward compat but clear it
 		}
 	}
 	return model;
@@ -340,6 +349,11 @@ export async function newModel(name: string) {
 }
 
 export async function deleteModel(id: string) {
+	// Unsaved edits die with the model, before the request goes, so neither
+	// switchTo's save-on-dirty nor a Save while it is in flight writes the
+	// deleted model back. If the request fails, the edits are still dropped:
+	// the user chose to discard this model.
+	if (store.model.id === id) store.dirty = false;
 	await apiDeleteModel(id);
 	store.savedList = store.savedList.filter((s) => s.id !== id);
 	if (store.savedList.length > 0) {

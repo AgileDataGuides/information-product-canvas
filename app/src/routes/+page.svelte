@@ -24,7 +24,8 @@
 	import CardEditModal from '$lib/components/canvas/CardEditModal.svelte';
 	import type { ContextNode, ContextLink } from '$lib/cp-shared';
 
-	let activeTab = $state<string>('canvas');
+	// 12 Steps is the way in, so the app opens on it, like the Concept Model
+	let activeTab = $state<string>('steps');
 
 	// Model management
 	let showSwitcher = $state(false);
@@ -238,7 +239,7 @@
 	</div>
 </header>
 
-{#if activeTab === 'canvas'}
+{#if activeTab === 'canvas' || activeTab === 'steps'}
 	{#if store.loaded}
 		<div class="px-6 py-3 border-b border-slate-200 bg-white shrink-0">
 			<Toolbar bind:activeTab />
@@ -250,6 +251,7 @@
 				onSelectIpc={handleSelectIpc}
 				onSelectNode={handleSelectNode}
 				onAddNode={handleAddNode}
+				view={activeTab === 'steps' ? 'steps' : 'canvas'}
 				showSwitcher={false} showToolbar={false} showTabs={false}
 			/>
 		</div>

@@ -9,7 +9,7 @@ const entityTypes: EntityTypeDefinition[] = [
 	{ label: 'ipc_delivery_type', displayName: 'Delivery Type', shape: 'round-rectangle', color: '#8b5cf6', category: 'ipc_what', isGlobal: false },
 	{ label: 'ipc_data_sync', displayName: 'Data Sync', shape: 'round-rectangle', color: '#7c3aed', category: 'ipc_what', isGlobal: false },
 	{ label: 'ipc_feature_story', displayName: 'Feature Story', shape: 'round-rectangle', color: '#5b21b6', category: 'ipc_what', isGlobal: false },
-	{ label: 'ipc_will_wont', displayName: "Will/Won't", shape: 'round-rectangle', color: '#4c1d95', category: 'ipc_what', isGlobal: false },
+	{ label: 'ipc_will_wont', displayName: "Will / Won't", shape: 'round-rectangle', color: '#4c1d95', category: 'ipc_what', isGlobal: false },
 	{ label: 'ipc_product_owner', displayName: 'Product Owner', shape: 'round-rectangle', color: '#d97706', category: 'ipc_product', isGlobal: false },
 	{ label: 'ipc_vision', displayName: 'Vision', shape: 'round-rectangle', color: '#b45309', category: 'ipc_product', isGlobal: false },
 	{ label: 'ipc_tshirt_size', displayName: 'T-Shirt Size', shape: 'round-rectangle', color: '#92400e', category: 'ipc_product', isGlobal: false }

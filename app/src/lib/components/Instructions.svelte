@@ -8,7 +8,7 @@
 			<p>See what a completed canvas looks like and start building your own.</p>
 			<ol>
 				<li>The app loads with an example Information Product — <strong>SaaS Revenue Metrics</strong>.</li>
-				<li>Browse the canvas grid to see how sections are filled in: Personas (CFO, RevOps, CS Lead), Business Questions, Vision, Outcomes, Feature Stories, and Will/Won't.</li>
+				<li>Browse the canvas grid to see how sections are filled in: Personas (CFO, RevOps, CS Lead), Business Questions, Vision, Outcomes, Feature Stories, and Will / Won't.</li>
 				<li>Open <strong>Claude Code</strong> in this project directory and ask questions like:</li>
 			</ol>
 			<ul class="examples">
@@ -22,13 +22,27 @@
 		</section>
 
 		<section class="option-card">
+			<h3>Fill It In Step by Step</h3>
+			<p>The <strong>12 Steps</strong> tab walks a team through the canvas one area at a time, in the order the Green Book gives. It holds the same cards as the Canvas tab, and the app opens on it.</p>
+			<ol>
+				<li>Twelve steps run down the left, one for each area of the canvas. Each has a line that shows how far it has got.</li>
+				<li>Each step shows the book's question for its area, its advice on how to ask it, and an example from the book's canvas. Click <strong>Read more</strong> to open the book's articles on that area.</li>
+				<li>Read the step's question, type an answer and press Enter. The cursor stays in the field, so you can add the next one straight away.</li>
+				<li>Click <strong>Next</strong> at the bottom to move on, or <strong>Back</strong> to go back. Any step on the left is one click away. No step is locked.</li>
+				<li>Click a card to edit it or delete it, the same as on the Canvas tab.</li>
+				<li>Switch to the <strong>Canvas</strong> tab at any time to see the whole canvas on one page.</li>
+				<li>The book says you can complete the areas in any order. The 12 Steps are the order Shane uses in Pattern Storming sessions: Business Questions first, Vision second to last, and the T-Shirt Size after the workshop with the data team.</li>
+			</ol>
+		</section>
+
+		<section class="option-card">
 			<h3>Build Your Own Information Product Canvas</h3>
 			<p>Create a new canvas, fill in the sections, then use Claude to review and improve it.</p>
 			<ol>
 				<li>Click <strong>New Canvas</strong> in the toolbar to create a blank model.</li>
 				<li>Type a name in each section's input field and press Enter to add items.</li>
 				<li>Double-click any item to rename it inline.</li>
-				<li>Fill in all sections: Name, Product Owner, T-Shirt Size, Personas, Business Questions, Outcomes/Actions, Vision, Delivery Types, Data Sync, Core Business Events, Feature Stories, and Will/Won't.</li>
+				<li>Fill in all sections: Name, Product Owner, T-Shirt Size, Personas, Business Questions, Outcomes / Actions, Vision, Delivery Types, Data Sync, Core Business Events, Feature Stories, and Will / Won't.</li>
 				<li>Click <strong>Save</strong> to persist your canvas. Use <strong>Export JSON</strong> to download, or <strong>Export PPTX</strong> for a PowerPoint slide. Then ask Claude:</li>
 			</ol>
 			<ul class="examples">
@@ -83,13 +97,13 @@
 				<li><strong>T-Shirt Size</strong> &mdash; effort estimate (single value).</li>
 				<li><strong>Personas</strong> &mdash; who consumes this product.</li>
 				<li><strong>Business Questions</strong> &mdash; what questions does this product answer.</li>
-				<li><strong>Outcomes/Actions</strong> &mdash; what actions or outcomes result from answering the questions.</li>
+				<li><strong>Outcomes / Actions</strong> &mdash; what actions or outcomes result from answering the questions.</li>
 				<li><strong>Vision</strong> &mdash; vision statements for this product.</li>
 				<li><strong>Delivery Types</strong> &mdash; how the product is delivered (e.g. Dashboard, Report, API).</li>
 				<li><strong>Data Sync</strong> &mdash; how data is synchronised (e.g. Real-time, Hourly, Daily).</li>
 				<li><strong>Core Business Events</strong> &mdash; what events trigger or feed the product.</li>
 				<li><strong>Feature Stories</strong> &mdash; user stories in "As a... I want... so that..." format.</li>
-				<li><strong>Will/Won't</strong> &mdash; explicit scope: what's in and what's out.</li>
+				<li><strong>Will / Won't</strong> &mdash; explicit scope: what's in and what's out.</li>
 			</ul>
 		</section>
 

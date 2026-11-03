@@ -59,7 +59,7 @@ export const CONTEXT_TYPES: Record<string, ContextTypeConfig> = {
 	},
 	ipc_will_wont: {
 		label: 'ipc_will_wont',
-		displayName: "Will/Won't",
+		displayName: "Will / Won't",
 		color: '#f97316',
 		shape: 'round-rectangle',
 		description: 'Statement of scope boundary and high level acceptance criteria'

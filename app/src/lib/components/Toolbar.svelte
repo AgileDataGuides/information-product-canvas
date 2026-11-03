@@ -16,6 +16,7 @@
 	} = $props();
 
 	const tabs = [
+		{ id: 'steps', label: '12 Steps' },
 		{ id: 'canvas', label: 'Canvas' },
 		{ id: 'instructions', label: 'Instructions' }
 	];

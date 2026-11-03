@@ -3,6 +3,10 @@
 	import type { ContextNode, ContextLink, DataAdapter } from '$lib/cp-shared';
 	import { getNodeLabels } from '$lib/cp-shared';
 	import { getContext } from 'svelte';
+	// Relative, not $lib: the Context Plane imports this component, and $lib there is its own folder
+	import { SECTIONS, type SectionLabel } from '../../canon/steps';
+	import { STEPS_TAB } from '../../ui/tokens';
+	import StepsView from './StepsView.svelte';
 
 	const adapter = getContext<DataAdapter>('dataAdapter');
 
@@ -21,7 +25,9 @@
 		showToolbar = true,
 		showTabs = true,
 		controlledModelId = null,
-		onModelListChange
+		onModelListChange,
+		view = $bindable('canvas'),
+		step = $bindable()
 	}: {
 		nodes: ContextNode[];
 		links?: ContextLink[];
@@ -38,7 +44,16 @@
 		showTabs?: boolean;
 		controlledModelId?: string | null;
 		onModelListChange?: (models: { id: string; name: string }[], selectedId: string | null) => void;
+		/** Canvas (the grid, the default) or 12 Steps (the same cards, one step at a time). The standalone app passes it from its tabs and opens on 12 Steps; the canvas's own Tier 3 tabs set it when showTabs, as in the Context Plane. */
+		view?: 'canvas' | 'steps';
+		/** The selected step on the 12 Steps view. */
+		step?: string;
 	} = $props();
+
+	const VIEWS = [
+		{ id: 'steps', label: '12 Steps' },
+		{ id: 'canvas', label: 'Canvas' }
+	] as const;
 
 	let importing = $state(false);
 	let exportingPptx = $state(false);
@@ -161,6 +176,15 @@
 	});
 
 	const get = (label: string) => byLabel[label] || [];
+
+	/** A grid section's title, colour, entity label and limit, from the one section list */
+	function section(label: SectionLabel) {
+		const { title, color, maxItems } = SECTIONS[label] as { title: string; color: string; maxItems?: number };
+		return { title, color, entityLabel: label, maxItems };
+	}
+
+	// The height left for the grid or the steps under the switcher and toolbar
+	const bodyHeight = $derived(showSwitcher && showToolbar ? 'h-[calc(100%-11rem)]' : showToolbar ? 'h-[calc(100%-7rem)]' : 'h-[calc(100%-0.5rem)]');
 
 	// ── Model switcher ──
 	let showModelSwitcher = $state(false);
@@ -357,51 +381,60 @@
 	{#if selectedModel && showTabs}
 		<!-- Tier 3: Tabs -->
 		<div class="flex gap-0 px-4 border-b border-slate-200 mb-3">
-			<button class="flex items-center px-3.5 py-2 text-xs font-medium border-b-2 -mb-px text-blue-600 border-blue-600">Canvas</button>
+			{#each VIEWS as tab (tab.id)}
+				<button
+					class="flex items-center px-3.5 py-2 text-xs font-medium border-b-2 -mb-px transition-colors {view === tab.id ? 'text-blue-600 border-blue-600' : 'text-slate-400 border-transparent hover:text-slate-600'}"
+					onclick={() => (view = tab.id)}
+				>{tab.label}</button>
+			{/each}
 		</div>
 	{/if}
 
-	{#if selectedModel || !showSwitcher}
-	<div class="grid grid-cols-5 grid-rows-[auto_minmax(80px,0.5fr)_minmax(80px,0.5fr)_minmax(100px,1fr)_minmax(80px,0.7fr)] gap-1.5 {showSwitcher && showToolbar ? 'h-[calc(100%-11rem)]' : showToolbar ? 'h-[calc(100%-7rem)]' : 'h-[calc(100%-0.5rem)]'}">
+	{#if (selectedModel || !showSwitcher) && view === 'steps'}
+	<div class="{STEPS_TAB.frame} {bodyHeight}">
+		<StepsView {get} {onSelectNode} {onAddNode} bind:selected={step} />
+	</div>
+	{:else if selectedModel || !showSwitcher}
+	<div class="grid grid-cols-5 grid-rows-[auto_minmax(80px,0.5fr)_minmax(80px,0.5fr)_minmax(100px,1fr)_minmax(80px,0.7fr)] gap-1.5 {bodyHeight}">
 		<div class="col-span-3">
-			<CanvasSection title="Name" color="#0ea5e9" entityLabel="global_info_product" nodes={get('global_info_product')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
+			<CanvasSection {...section('global_info_product')} nodes={get('global_info_product')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-1">
-			<CanvasSection title="Product Owner" color="#0ea5e9" entityLabel="ipc_product_owner" nodes={get('ipc_product_owner')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
+			<CanvasSection {...section('ipc_product_owner')} nodes={get('ipc_product_owner')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-1">
-			<CanvasSection title="T-Shirt Size" color="#0ea5e9" entityLabel="ipc_tshirt_size" nodes={get('ipc_tshirt_size')} {onSelectNode} {onAddNode} {onAddExisting} maxItems={1} />
+			<CanvasSection {...section('ipc_tshirt_size')} nodes={get('ipc_tshirt_size')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 
 		<div class="col-span-2 row-span-2">
-			<CanvasSection title="Outcomes/Actions" color="#7c3aed" entityLabel="ipc_action_outcome" nodes={get('ipc_action_outcome')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_action_outcome')} nodes={get('ipc_action_outcome')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-1 row-span-3">
-			<CanvasSection title="Vision" color="#0ea5e9" entityLabel="ipc_vision" nodes={get('ipc_vision')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_vision')} nodes={get('ipc_vision')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-1 row-span-2">
-			<CanvasSection title="Personas" color="#f97316" entityLabel="global_persona" nodes={get('global_persona')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('global_persona')} nodes={get('global_persona')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-1 row-span-1">
-			<CanvasSection title="Delivery Types" color="#f97316" entityLabel="ipc_delivery_type" nodes={get('ipc_delivery_type')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_delivery_type')} nodes={get('ipc_delivery_type')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 
 		<div class="col-span-1 row-span-1">
-			<CanvasSection title="DataSync" color="#f97316" entityLabel="ipc_data_sync" nodes={get('ipc_data_sync')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_data_sync')} nodes={get('ipc_data_sync')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 
 		<div class="col-span-2 row-span-1">
-			<CanvasSection title="Business Questions" color="#7c3aed" entityLabel="global_business_question" nodes={get('global_business_question')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('global_business_question')} nodes={get('global_business_question')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-2 row-span-1">
-			<CanvasSection title="Core Business Events" color="#16a34a" entityLabel="global_core_business_event" nodes={get('global_core_business_event')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('global_core_business_event')} nodes={get('global_core_business_event')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 
 		<div class="col-span-3 row-span-1">
-			<CanvasSection title="Feature Stories" color="#f97316" entityLabel="ipc_feature_story" nodes={get('ipc_feature_story')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_feature_story')} nodes={get('ipc_feature_story')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 		<div class="col-span-2 row-span-1">
-			<CanvasSection title="Will/Won't" color="#f97316" entityLabel="ipc_will_wont" nodes={get('ipc_will_wont')} {onSelectNode} {onAddNode} {onAddExisting} />
+			<CanvasSection {...section('ipc_will_wont')} nodes={get('ipc_will_wont')} {onSelectNode} {onAddNode} {onAddExisting} />
 		</div>
 	</div>
 	{/if}

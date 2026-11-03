@@ -42,6 +42,8 @@ export interface DataAdapter {
   // Link operations
   getLinks(filter?: { label?: string; source_id?: string; destination_id?: string }): Promise<ContextLink[]>;
   createLink(link: Omit<ContextLink, "id" | "created_at" | "updated_at">): Promise<ContextLink>;
+  // Optional: change the label or properties of a link in place (packages/shared/src/adapter.ts)
+  updateLink?(id: string, updates: Partial<Pick<ContextLink, "label" | "properties">>): Promise<ContextLink>;
   deleteLink(id: string): Promise<void>;
 
   // Bulk operations (for import/export)

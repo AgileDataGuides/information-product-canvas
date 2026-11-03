@@ -17,14 +17,14 @@ The Information Product Canvas is a visual requirements tool for Information Pro
 | **Product Owner** | Who owns this product |
 | **T-Shirt Size** | Effort estimate |
 | **Business Questions** | What questions does this product answer |
-| **Outcomes/Actions** | What actions and outcomes result from answering the questions |
+| **Outcomes / Actions** | What actions and outcomes result from answering the questions |
 | **Personas** | Who consumes this product |
 | **Vision** | Vision statements for this product |
 | **Delivery Types** | How the product is delivered (e.g. Dashboard, Report, API) |
 | **Data Sync** | How often data is refreshed (e.g. Real-time, Hourly, Daily) |
 | **Core Business Events** | What events create the data that feeds the product |
 | **Feature Stories** | User stories in "As a... I want... so that..." format |
-| **Will/Won't** | Explicit scope: what's in and what's out |
+| **Will / Won't** | Explicit scope: what's in and what's out |
 
 ## Try It Online
 

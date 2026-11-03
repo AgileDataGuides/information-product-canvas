@@ -20,6 +20,11 @@
 	 *   - (fallback for any other label):
 	 *       name, description, notes
 	 *
+	 * With `threePart` (the Concept Model), a Concept reads as a three-part
+	 * Definition instead, in the same field order: part one (the description,
+	 * with the category + differentiator helper under it), then the app's
+	 * `definitionParts`, then W's.
+	 *
 	 * Autocomplete data comes from the `allNodes` prop:
 	 *   - Definition category: filtered to other concepts in the model
 	 *   - @-mention in differentiator: filtered to glossary terms
@@ -29,7 +34,7 @@
 	 * Promoted from BEM-app-local BemCardEditModal → shared so every canvas
 	 * that touches Concept-family cards renders the SAME popup.
 	 */
-	import { getContext } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import type { ContextNode, DataAdapter } from '$lib/cp-shared';
 	import { getNodeLabels } from '$lib/cp-shared';
 
@@ -50,7 +55,12 @@
 		allNodes,
 		onClose,
 		onSaved,
-		onDeleted
+		onDeleted,
+		extraFields,
+		topFields,
+		definitionParts,
+		threePart,
+		wOptional = false
 	}: {
 		node: ContextNode;
 		/** All nodes — used to populate autocomplete (concept categories,
@@ -59,6 +69,33 @@
 		onClose: () => void;
 		onSaved?: () => void;
 		onDeleted?: () => void;
+		/** An app's own type-specific fields, drawn after the W's and Definition
+		 *  and before Notes (DESIGN_SYSTEM § 10). The app keeps their values and
+		 *  writes them in onSaved, so Save and Cancel cover them too. */
+		extraFields?: Snippet;
+		/** An app's own action for the place it was opened from, drawn under the
+		 *  title and before Name (DESIGN_SYSTEM § 10), such as the Concept
+		 *  Model's "Link to story". It acts at once, not on Save. */
+		topFields?: Snippet;
+		/** The three-part Definition, for an app that defines Concepts that way
+		 *  (the Concept Model). For a Concept it labels the Description as part
+		 *  one, puts the category + differentiator helper under it (before the
+		 *  W's), offers the helper's sentence for an empty part one, then
+		 *  renders definitionParts. Other apps leave it out and keep today's layout. */
+		threePart?: {
+			partOne: string;
+			partOnePlaceholder?: string;
+			helper: string;
+			useSentence: string;
+			sentence: (name: string, category: string, differentiator: string) => string;
+		};
+		/** The app's own parts of the Definition (examples, special cases,
+		 *  status), drawn right after part one when threePart is set. The app
+		 *  keeps their values and writes them in onSaved. */
+		definitionParts?: Snippet;
+		/** True where a Concept need not have a W's (the Concept Model): "Not set"
+		 *  is always on offer, so a W's set by mistake can be cleared. */
+		wOptional?: boolean;
 	} = $props();
 
 	const adapter = getContext<DataAdapter>('dataAdapter');
@@ -90,10 +127,16 @@
 	let descValue = $state(node.description ?? '');
 	let aliasesValue = $state(((node.properties?.aliases as string[]) ?? []).join(', '));
 	let ownerValue = $state((node.properties?.owner as string) ?? '');
-	let wValue = $state<W>(((node.properties?.w as W) ?? 'who'));
+	// A Concept with no W's stays without one until someone picks it, rather
+	// than becoming Who on its first save (the Concept Model sets it rarely)
+	const hadW = !!node.properties?.w;
+	let wValue = $state<W | ''>((node.properties?.w as W | undefined) ?? '');
 	let notesValue = $state((node.properties?.notes as string) ?? '');
 	let defCategory = $state((node.properties?.definitionCategory as string) ?? '');
 	let defDifferentiator = $state((node.properties?.definitionDifferentiator as string) ?? '');
+
+	// The helper's sentence, offered for an empty part one in the three-part layout
+	const sentence = $derived(threePart ? threePart.sentence(nameValue, defCategory, defDifferentiator) : '');
 
 	// ── Definition category autocomplete (other concepts) ────────────
 	let defCatQuery = $state('');
@@ -248,7 +291,11 @@
 			properties.owner = ownerValue;
 		}
 		if (cardType === 'concept') {
-			properties.w = wValue;
+			if (wValue) properties.w = wValue;
+			// Not set on a Concept that had a W's: keep the key, as undefined, so an
+			// adapter that merges properties (the Concept Model's) clears it too
+			else if (hadW) properties.w = undefined;
+			else delete properties.w;
 			properties.definitionCategory = defCategory;
 			properties.definitionDifferentiator = defDifferentiator;
 		}
@@ -275,11 +322,15 @@
 	role="presentation"
 >
 	<div
-		class="bg-white rounded-xl shadow-xl border border-slate-200 p-5 w-full max-w-md"
+		class="bg-white rounded-xl shadow-xl border border-slate-200 p-5 w-full max-w-md {threePart ? 'max-h-[85vh] overflow-y-auto' : ''}"
 		onclick={(e) => e.stopPropagation()}
 		role="presentation"
 	>
 		<h3 class="text-sm font-bold text-slate-700 mb-3">{typeLabel} Details</h3>
+
+		{#if topFields}
+			{@render topFields()}
+		{/if}
 
 		<label class="block text-xs font-medium text-slate-500 mb-1" for="bem-edit-name">Name</label>
 		<input
@@ -289,126 +340,37 @@
 			class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
 		/>
 
-		{#if cardType === 'concept' || cardType === 'domain'}
-			<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-aliases">
-				Aliases <span class="text-slate-400 font-normal">(comma-separated)</span>
-			</label>
-			<input
-				id="bem-edit-aliases"
-				type="text"
-				bind:value={aliasesValue}
-				placeholder="e.g. Revenue, Income"
-				class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-			/>
+		{#if threePart && cardType === 'concept'}
+			<!-- The three-part Definition (the Concept Model), in the standard order
+			     (DESIGN_SYSTEM § 10): part one is the Description, the helper is the
+			     Definition, then the app's parts two and three and the status -->
+			{@render aliasesField()}
+			{@render descriptionField(threePart.partOne, threePart.partOnePlaceholder)}
+			{@render definitionHelper(threePart.helper)}
+			{#if definitionParts}
+				{@render definitionParts()}
+			{/if}
+			{@render wField()}
+		{:else}
+			{@render aliasesField()}
+			{@render descriptionField('Description')}
+			{#if cardType === 'domain'}
+				<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-owner">Domain Owner</label>
+				<input
+					id="bem-edit-owner"
+					type="text"
+					bind:value={ownerValue}
+					placeholder="e.g. Sales Manager, Jane Smith"
+					class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+				/>
+			{:else if cardType === 'concept'}
+				{@render wField()}
+				{@render definitionHelper('Definition')}
+			{/if}
 		{/if}
 
-		<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-desc">Description</label>
-		<textarea
-			id="bem-edit-desc"
-			bind:value={descValue}
-			placeholder="Describe what this {typeLabel.toLowerCase()} covers..."
-			rows={3}
-			class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-		></textarea>
-
-		{#if cardType === 'domain'}
-			<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-owner">Domain Owner</label>
-			<input
-				id="bem-edit-owner"
-				type="text"
-				bind:value={ownerValue}
-				placeholder="e.g. Sales Manager, Jane Smith"
-				class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-			/>
-		{:else if cardType === 'concept'}
-			<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-wtype">W's</label>
-			<select
-				id="bem-edit-wtype"
-				bind:value={wValue}
-				class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-			>
-				{#each WS as wt}
-					<option value={wt}>{W_LABELS[wt]}</option>
-				{/each}
-			</select>
-
-			<div class="mt-3 rounded-lg border border-orange-200 bg-orange-50/50 p-3">
-				<label class="block text-xs font-medium text-orange-600 mb-2" for="bem-edit-defcat">Definition</label>
-				<p class="text-xs text-slate-500 mb-2">
-					A <strong>{nameValue || 'concept'}</strong> is a
-					<span class="text-orange-600 font-medium">[broader category]</span>
-					that <span class="text-orange-600 font-medium">[distinguishing feature]</span>
-				</p>
-				<div class="flex items-center gap-2 text-sm text-slate-700">
-					<span class="text-xs text-slate-400 shrink-0">is a</span>
-					<div class="relative flex-1">
-						<input
-							id="bem-edit-defcat"
-							type="text"
-							bind:value={defCategory}
-							placeholder="broader category (genus)"
-							oninput={handleDefCatInput}
-							onkeydown={handleDefCatKeydown}
-							onfocus={() => {
-								defCatQuery = defCategory;
-								handleDefCatInput();
-							}}
-							onblur={() => setTimeout(() => (showDefCatDropdown = false), 150)}
-							autocomplete="off"
-							class="w-full px-2 py-1 border border-orange-200 rounded text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none bg-white"
-						/>
-						{#if showDefCatDropdown && defCatSuggestions.length > 0}
-							<div class="absolute top-full left-0 mt-1 bg-white rounded-lg border border-orange-200 shadow-xl z-[60] py-1 w-56 max-h-40 overflow-y-auto">
-								{#each defCatSuggestions as concept, i}
-									<button
-										type="button"
-										onmousedown={(e) => {
-											e.preventDefault();
-											selectDefCatConcept(concept);
-										}}
-										class="w-full text-left px-3 py-1.5 text-sm transition-colors {i === defCatFocusIdx ? 'bg-orange-50 text-orange-800' : 'text-slate-700 hover:bg-slate-50'}"
-									>
-										<span class="font-medium">{concept.name}</span>
-									</button>
-								{/each}
-							</div>
-						{/if}
-					</div>
-				</div>
-				<div class="flex items-center gap-2 text-sm text-slate-700 mt-1.5">
-					<span class="text-xs text-slate-400 shrink-0">that</span>
-					<div class="relative flex-1">
-						<input
-							type="text"
-							bind:value={defDifferentiator}
-							bind:this={mentionInputEl}
-							placeholder="distinguishing feature (type @ to link)"
-							oninput={handleDiffInput}
-							onkeydown={handleDiffKeydown}
-							onblur={() => setTimeout(() => (showMentionDropdown = false), 150)}
-							autocomplete="off"
-							class="w-full px-2 py-1 border border-orange-200 rounded text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none bg-white"
-						/>
-						{#if showMentionDropdown && mentionSuggestions.length > 0}
-							<div class="absolute top-full left-0 mt-1 bg-white rounded-lg border border-orange-200 shadow-xl z-[60] py-1 w-64 max-h-40 overflow-y-auto">
-								{#each mentionSuggestions as term, i}
-									<button
-										type="button"
-										onmousedown={(e) => {
-											e.preventDefault();
-											selectMention(term);
-										}}
-										class="w-full text-left px-3 py-1.5 text-sm transition-colors flex items-center gap-2 {i === mentionFocusIdx ? 'bg-orange-50 text-orange-800' : 'text-slate-700 hover:bg-slate-50'}"
-									>
-										<span class="inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-700 border border-orange-200">@</span>
-										<span class="font-medium">{term.name}</span>
-									</button>
-								{/each}
-							</div>
-						{/if}
-					</div>
-				</div>
-			</div>
+		{#if extraFields}
+			{@render extraFields()}
 		{/if}
 
 		<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-notes">Notes</label>
@@ -443,3 +405,136 @@
 		</div>
 	</div>
 </div>
+
+{#snippet aliasesField()}
+	{#if cardType === 'concept' || cardType === 'domain'}
+		<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-aliases">
+			Aliases <span class="text-slate-400 font-normal">(comma-separated)</span>
+		</label>
+		<input
+			id="bem-edit-aliases"
+			type="text"
+			bind:value={aliasesValue}
+			placeholder="e.g. Revenue, Income"
+			class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+		/>
+	{/if}
+{/snippet}
+
+{#snippet descriptionField(label: string, placeholder = `Describe what this ${typeLabel.toLowerCase()} covers...`)}
+	<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-desc">{label}</label>
+	<textarea
+		id="bem-edit-desc"
+		bind:value={descValue}
+		{placeholder}
+		rows={3}
+		class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+	></textarea>
+{/snippet}
+
+{#snippet wField()}
+	<label class="block text-xs font-medium text-slate-500 mb-1 mt-3" for="bem-edit-wtype">W's</label>
+	<select
+		id="bem-edit-wtype"
+		bind:value={wValue}
+		class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+	>
+		{#if !hadW || wOptional}
+			<option value="">Not set</option>
+		{/if}
+		{#each WS as wt}
+			<option value={wt}>{W_LABELS[wt]}</option>
+		{/each}
+	</select>
+{/snippet}
+
+{#snippet definitionHelper(title: string)}
+	<div class="mt-3 rounded-lg border border-orange-200 bg-orange-50/50 p-3">
+		<label class="block text-xs font-medium text-orange-600 mb-2" for="bem-edit-defcat">{title}</label>
+		<p class="text-xs text-slate-500 mb-2">
+			A <strong>{nameValue || 'concept'}</strong> is a
+			<span class="text-orange-600 font-medium">[broader category]</span>
+			that <span class="text-orange-600 font-medium">[distinguishing feature]</span>
+		</p>
+		<div class="flex items-center gap-2 text-sm text-slate-700">
+			<span class="text-xs text-slate-400 shrink-0">is a</span>
+			<div class="relative flex-1">
+				<input
+					id="bem-edit-defcat"
+					type="text"
+					bind:value={defCategory}
+					placeholder="broader category (genus)"
+					oninput={handleDefCatInput}
+					onkeydown={handleDefCatKeydown}
+					onfocus={() => {
+						defCatQuery = defCategory;
+						handleDefCatInput();
+					}}
+					onblur={() => setTimeout(() => (showDefCatDropdown = false), 150)}
+					autocomplete="off"
+					class="w-full px-2 py-1 border border-orange-200 rounded text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none bg-white"
+				/>
+				{#if showDefCatDropdown && defCatSuggestions.length > 0}
+					<div class="absolute top-full left-0 mt-1 bg-white rounded-lg border border-orange-200 shadow-xl z-[60] py-1 w-56 max-h-40 overflow-y-auto">
+						{#each defCatSuggestions as concept, i}
+							<button
+								type="button"
+								onmousedown={(e) => {
+									e.preventDefault();
+									selectDefCatConcept(concept);
+								}}
+								class="w-full text-left px-3 py-1.5 text-sm transition-colors {i === defCatFocusIdx ? 'bg-orange-50 text-orange-800' : 'text-slate-700 hover:bg-slate-50'}"
+							>
+								<span class="font-medium">{concept.name}</span>
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+		<div class="flex items-center gap-2 text-sm text-slate-700 mt-1.5">
+			<span class="text-xs text-slate-400 shrink-0">that</span>
+			<div class="relative flex-1">
+				<input
+					type="text"
+					bind:value={defDifferentiator}
+					bind:this={mentionInputEl}
+					placeholder="distinguishing feature (type @ to link)"
+					oninput={handleDiffInput}
+					onkeydown={handleDiffKeydown}
+					onblur={() => setTimeout(() => (showMentionDropdown = false), 150)}
+					autocomplete="off"
+					class="w-full px-2 py-1 border border-orange-200 rounded text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none bg-white"
+				/>
+				{#if showMentionDropdown && mentionSuggestions.length > 0}
+					<div class="absolute top-full left-0 mt-1 bg-white rounded-lg border border-orange-200 shadow-xl z-[60] py-1 w-64 max-h-40 overflow-y-auto">
+						{#each mentionSuggestions as term, i}
+							<button
+								type="button"
+								onmousedown={(e) => {
+									e.preventDefault();
+									selectMention(term);
+								}}
+								class="w-full text-left px-3 py-1.5 text-sm transition-colors flex items-center gap-2 {i === mentionFocusIdx ? 'bg-orange-50 text-orange-800' : 'text-slate-700 hover:bg-slate-50'}"
+							>
+								<span class="inline-block px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-orange-100 text-orange-700 border border-orange-200">@</span>
+								<span class="font-medium">{term.name}</span>
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+		{#if threePart && sentence && !descValue.trim()}
+			<div class="flex items-start justify-between gap-3 mt-2">
+				<p class="text-xs text-slate-500">{sentence}</p>
+				<!-- tokens.md row_actions.neutral -->
+				<button
+					type="button"
+					onclick={() => (descValue = sentence)}
+					class="shrink-0 text-[11px] font-medium text-slate-500 hover:text-slate-800 transition-colors"
+				>{threePart.useSentence}</button>
+			</div>
+		{/if}
+	</div>
+{/snippet}
