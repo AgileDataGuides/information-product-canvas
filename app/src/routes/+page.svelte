@@ -14,15 +14,15 @@
 		newModel,
 		deleteModel,
 		importJSON
-	} from '$lib/stores/ipc.svelte';
-	import { applyIpcDemoSeeds } from '$lib/stores/demo-seed';
-	import { ipcToContextPlane, contextPlaneToIpc } from '$lib/converters/context-plane';
-	import { createStandaloneAdapter } from '$lib/adapters/standalone-adapter';
-	import Toolbar from '$lib/components/Toolbar.svelte';
-	import Instructions from '$lib/components/Instructions.svelte';
-	import IPCLayout from '$lib/components/canvas/IPCLayout.svelte';
-	import CardEditModal from '$lib/components/canvas/CardEditModal.svelte';
-	import type { ContextNode, ContextLink } from '$lib/cp-shared';
+	} from '#lib/stores/ipc.svelte.ts';
+	import { applyIpcDemoSeeds } from '#lib/stores/demo-seed.ts';
+	import { ipcToContextPlane, contextPlaneToIpc } from '#lib/converters/context-plane.ts';
+	import { createStandaloneAdapter } from '#lib/adapters/standalone-adapter.ts';
+	import Toolbar from '#lib/components/Toolbar.svelte';
+	import Instructions from '#lib/components/Instructions.svelte';
+	import IPCLayout from '#lib/components/canvas/IPCLayout.svelte';
+	import CardEditModal from '#lib/components/canvas/CardEditModal.svelte';
+	import type { ContextNode, ContextLink } from '#lib/cp-shared.ts';
 
 	// 12 Steps is the way in, so the app opens on it, like the Concept Model
 	let activeTab = $state<string>('steps');

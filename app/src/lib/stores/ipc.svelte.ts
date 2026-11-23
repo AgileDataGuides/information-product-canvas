@@ -1,4 +1,4 @@
-import type { IPCModel, InformationProduct, IPCItem, BusinessQuestion, IPCNode } from '$lib/types';
+import type { IPCModel, InformationProduct, IPCItem, BusinessQuestion, IPCNode } from '#lib/types.ts';
 
 function stripDateTimeSuffix(name: string): string {
 	return name.replace(/-\d{4}-\d{2}-\d{2}-\d{6}$/, '');

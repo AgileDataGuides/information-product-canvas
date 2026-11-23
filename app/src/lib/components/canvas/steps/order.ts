@@ -1,4 +1,4 @@
-import type { ContextNode } from '$lib/cp-shared';
+import type { ContextNode } from '#lib/cp-shared.ts';
 
 /** The grid's card order, lowest `properties.order` first, the same sort the shared CanvasSection uses */
 export function byOrder(a: ContextNode, b: ContextNode): number {

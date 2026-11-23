@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import type { DataAdapter, ContextNode } from '$lib/cp-shared';
-	import { getNodeLabels } from '$lib/cp-shared';
+	import type { DataAdapter, ContextNode } from '#lib/cp-shared.ts';
+	import { getNodeLabels } from '#lib/cp-shared.ts';
 
 	const adapter = getContext<DataAdapter>('dataAdapter');
 

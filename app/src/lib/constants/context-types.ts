@@ -1,4 +1,4 @@
-import type { ContextTypeConfig } from '$lib/types';
+import type { ContextTypeConfig } from '#lib/types.ts';
 
 export const CONTEXT_TYPES: Record<string, ContextTypeConfig> = {
 	global_info_product: {

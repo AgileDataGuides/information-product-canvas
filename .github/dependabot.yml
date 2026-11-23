@@ -14,6 +14,12 @@ updates:
       time: "09:00"
       timezone: "Pacific/Auckland"
     open-pull-requests-limit: 5
+    # TypeScript 7 is the Go-native compiler. SvelteKit 3 and svelte-check 4
+    # both require typescript ^6, so a 7 bump fails `pnpm check`. Lift this
+    # once both packages support 7.
+    ignore:
+      - dependency-name: "typescript"
+        versions: [">=7"]
     groups:
       patch-and-minor:
         update-types: ["patch", "minor"]

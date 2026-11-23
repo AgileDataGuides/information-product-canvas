@@ -1,7 +1,7 @@
 <script lang="ts">
-	import CanvasSection from '$lib/components/canvas/CanvasSection.svelte';
-	import type { ContextNode, ContextLink, DataAdapter } from '$lib/cp-shared';
-	import { getNodeLabels } from '$lib/cp-shared';
+	import CanvasSection from '#lib/components/canvas/CanvasSection.svelte';
+	import type { ContextNode, ContextLink, DataAdapter } from '#lib/cp-shared.ts';
+	import { getNodeLabels } from '#lib/cp-shared.ts';
 	import { getContext } from 'svelte';
 	// Relative, not $lib: the Context Plane imports this component, and $lib there is its own folder
 	import { SECTIONS, type SectionLabel } from '../../canon/steps';

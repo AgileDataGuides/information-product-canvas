@@ -40,7 +40,7 @@ Run `./start-IPC.sh` from the terminal.
 
 The app starts at [http://localhost:5115](http://localhost:5115).
 
-**Requires**: [Node.js](https://nodejs.org/) (v18+).
+**Requires**: [Node.js](https://nodejs.org/) 22.17+ or 24+ (not 23).
 
 ## Features
 

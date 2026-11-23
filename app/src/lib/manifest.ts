@@ -1,4 +1,4 @@
-import type { AppManifest, EntityTypeDefinition, RelationshipTypeDefinition } from '$lib/cp-shared';
+import type { AppManifest, EntityTypeDefinition, RelationshipTypeDefinition } from '#lib/cp-shared.ts';
 
 const entityTypes: EntityTypeDefinition[] = [
 	{ label: 'global_info_product', displayName: 'Information Product', shape: 'diamond', color: '#f59e0b', category: 'global', isGlobal: true },
@@ -37,5 +37,5 @@ export const manifest: AppManifest = {
 	canvasId: 'canvas_ipc',
 	entityTypes,
 	relationshipTypes,
-	rootComponent: () => import('$lib/components/canvas/IPCLayout.svelte')
+	rootComponent: () => import('#lib/components/canvas/IPCLayout.svelte')
 };

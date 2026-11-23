@@ -5,7 +5,7 @@
 	// step is reachable at any time and no step blocks another. Each row's
 	// status line reads off the canvas, so the Steps tab and the Canvas grid
 	// are two views of the same cards.
-	import type { ContextNode } from '$lib/cp-shared';
+	import type { ContextNode } from '#lib/cp-shared.ts';
 	import { HINT, STEP_NAV, STEP_PANEL, STEP_RAIL } from '../../ui/tokens';
 	import { SECTIONS, STEPS, stepLabel, type SectionCanon, type StepCanon } from '../../canon/steps';
 	import StepSection from './steps/StepSection.svelte';

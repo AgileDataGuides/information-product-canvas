@@ -5,9 +5,9 @@
 		exportJSON,
 		renameModel,
 		updateDescription
-	} from '$lib/stores/ipc.svelte';
-	import { ipcToContextPlane } from '$lib/converters/context-plane';
-	import { exportIpcToPptx } from '$lib/export-pptx';
+	} from '#lib/stores/ipc.svelte.ts';
+	import { ipcToContextPlane } from '#lib/converters/context-plane.ts';
+	import { exportIpcToPptx } from '#lib/export-pptx.ts';
 
 	let {
 		activeTab = $bindable('canvas'),

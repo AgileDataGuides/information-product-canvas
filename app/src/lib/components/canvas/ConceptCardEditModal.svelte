@@ -35,8 +35,8 @@
 	 * that touches Concept-family cards renders the SAME popup.
 	 */
 	import { getContext, type Snippet } from 'svelte';
-	import type { ContextNode, DataAdapter } from '$lib/cp-shared';
-	import { getNodeLabels } from '$lib/cp-shared';
+	import type { ContextNode, DataAdapter } from '#lib/cp-shared.ts';
+	import { getNodeLabels } from '#lib/cp-shared.ts';
 
 	type W = 'who' | 'what' | 'when' | 'where' | 'why' | 'how' | 'how many';
 	const WS: W[] = ['who', 'what', 'when', 'where', 'why', 'how', 'how many'];

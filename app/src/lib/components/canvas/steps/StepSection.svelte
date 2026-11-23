@@ -4,8 +4,8 @@
 	// cursor in the field, and a one-item section hides the field once it is
 	// filled. The cards are the Canvas grid's cards: a click edits.
 	import { getContext } from 'svelte';
-	import CanvasCard from '$lib/components/canvas/CanvasCard.svelte';
-	import type { ContextNode, DataAdapter } from '$lib/cp-shared';
+	import CanvasCard from '#lib/components/canvas/CanvasCard.svelte';
+	import type { ContextNode, DataAdapter } from '#lib/cp-shared.ts';
 	import type { SectionCanon } from '../../../canon/steps';
 	import { BUTTON, INPUT } from '../../../ui/tokens';
 	import { byOrder } from './order';

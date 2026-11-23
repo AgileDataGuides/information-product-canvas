@@ -17,7 +17,7 @@
 	 * surface small to ship the delete-card capability across IPC, BEM, and
 	 * Data Contract in one go.
 	 */
-	import type { ContextNode } from '$lib/cp-shared';
+	import type { ContextNode } from '#lib/cp-shared.ts';
 
 	let {
 		node,

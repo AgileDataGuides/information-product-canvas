@@ -24,7 +24,7 @@
  * Usage in an SA app:
  *
  *   // apps/<app>/app/src/lib/stores/demo-seed.ts
- *   import { applyDemoSeeds } from '$lib/cp-shared-demo-seed';
+ *   import { applyDemoSeeds } from '#lib/cp-shared-demo-seed/index.ts';
  *   import contractA from '$data/contract-a.json';
  *   import contractB from '$data/contract-b.json';
  *
